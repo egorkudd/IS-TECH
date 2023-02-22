@@ -3,10 +3,14 @@ package is.technologies.entities;
 import is.technologies.models.Config;
 import lombok.Getter;
 
+import java.util.ArrayList;
+
 public class Bank {
     @Getter
     private final String name;
     private Config config;
+    @Getter
+    private final ArrayList<AbstractAccount> subscribers;
 
     public Bank(String name, Config config) {
         if (!name.isBlank()) {
@@ -17,10 +21,8 @@ public class Bank {
 
         if (config == null) throw new NullPointerException("config"); // TODO : NPE
         this.config = config.clone();
+        subscribers = new ArrayList<>();
     }
-
-    // TODO : Сделать подписку аккаунтов на банки,
-    //        чтобы при изменении конфига в аккаунтах он тоже менялся
 
     public Config getConfig() {
         return config.clone();
@@ -33,6 +35,6 @@ public class Bank {
             throw new NullPointerException("config"); // TODO : NPE
         }
 
-        // TODO : Здесь нужно отправлять аккаунтам изменение
+        subscribers.stream().forEach(account -> account.changeConfig(config));
     }
 }

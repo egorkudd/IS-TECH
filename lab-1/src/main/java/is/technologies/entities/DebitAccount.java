@@ -97,5 +97,6 @@ public class DebitAccount extends AbstractAccount {
     public void changeConfig(Config config) {
         percent = config.getDebitPercent();
         highLimit = config.getDebitHighLimit();
+        trustLimit = config.getTrustLimit();
     }
 }

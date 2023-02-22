@@ -1,7 +1,6 @@
 package is.technologies.models;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 @EqualsAndHashCode
 public class Money implements Comparable {
@@ -27,8 +26,8 @@ public class Money implements Comparable {
         return new Money((double) (count - money.count) / 100);
     }
 
-    public Money multiply(int k) {
-        return new Money((double) count * k / 100);
+    public Money multiply(double k) {
+        return new Money( count * k / 100);
     }
 
     public int compareTo(Money money) {

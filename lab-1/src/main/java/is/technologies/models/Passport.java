@@ -2,8 +2,10 @@ package is.technologies.models;
 
 import is.technologies.exceptions.PassportException;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class Passport {
     private final String series;
     private final String number;
@@ -12,11 +14,6 @@ public class Passport {
         CheckInputData(series, number);
         this.series = series;
         this.number = number;
-    }
-
-    @Override
-    public String toString() {
-        return "%s %s".formatted(series, number);
     }
 
     private void CheckInputData(String series, String number) {

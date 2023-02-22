@@ -5,15 +5,15 @@ public class ConsoleProgramException extends RuntimeException {
         super(message);
     }
 
-    public static ConsoleProgramException IncorrectBankName(String name) {
+    public static ConsoleProgramException incorrectBankName(String name) {
         return new ConsoleProgramException("%s was used".formatted(name));
     }
 
-    public static ConsoleProgramException IncorrectPassport(String passport) {
+    public static ConsoleProgramException incorrectPassport(String passport) {
         return new ConsoleProgramException(passport);
     }
 
-    public static ConsoleProgramException IncorrectAddress(String address) {
+    public static ConsoleProgramException incorrectAddress(String address) {
         return new ConsoleProgramException(address);
     }
 

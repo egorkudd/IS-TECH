@@ -2,8 +2,10 @@ package is.technologies.models;
 
 import is.technologies.exceptions.AddressException;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class Address {
     private final String town;
     private final String street;
@@ -16,11 +18,6 @@ public class Address {
         this.street = street;
         this.houseNumber = houseNumber;
         this.flat = flat;
-    }
-
-    @Override
-    public String toString() {
-        return town + ", " + street + ", " + houseNumber+ ", " + flat;
     }
 
     private void checkInputData(String town, String street, int houseNumber, int flat) {

@@ -16,7 +16,7 @@ public class LightConsole {
 
 
     public static void run() {
-        cb = new CentralBankImpl();
+        cb = CentralBankImpl.getInstance();
         System.out.printf("'%s' - possible commands%n", Commands.Help);
 
         boolean work = true;
@@ -151,8 +151,8 @@ public class LightConsole {
         System.out.println("Config was created");
 
         String bankName = getBankName();
-        boolean bankCreated = cb.AddBank(bankName, config);
-        if (!bankCreated) throw ConsoleProgramException.IncorrectBankName(bankName);
+        boolean bankCreated = cb.addBank(bankName, config);
+        if (!bankCreated) throw ConsoleProgramException.incorrectBankName(bankName);
         System.out.printf("Bank (%s) was created%n", bankName);
     }
 
@@ -231,12 +231,12 @@ public class LightConsole {
         System.out.println("Creating user:");
         String name = getUserName();
         String surname = getUserSurname();
-        UserData userData = cb.CreateUserData()
+        UserData userData = cb.createUserData()
                 .withPassport(getPassport())
                 .withAddress(getAddress())
                 .withPhoneNumber(getPhoneNumber())
                 .create(name, surname);
-        UUID userId = cb.AddUser(userData);
+        UUID userId = cb.addUser(userData);
         System.out.printf("User with id (%s) was created%n", userId);
     }
 
@@ -271,7 +271,7 @@ public class LightConsole {
 
         String[] passportData = passport.split("-");
         if (passportData.length != 2) {
-            throw ConsoleProgramException.IncorrectAddress(passport);
+            throw ConsoleProgramException.incorrectPassport(passport);
         }
 
         return new Passport(passportData[0], passportData[1]);
@@ -290,7 +290,7 @@ public class LightConsole {
 
         String[] addressData = address.split("; ");
         if (addressData.length != 4) {
-            throw ConsoleProgramException.IncorrectAddress(address);
+            throw ConsoleProgramException.incorrectAddress(address);
         }
 
         return new Address(
@@ -321,7 +321,7 @@ public class LightConsole {
         UUID userId = getUserId();
         String bankName = getBankName();
         Money money = getMoney();
-        UUID accountId = cb.OpenAccount(userId, bankName, accountMode, money);
+        UUID accountId = cb.openAccount(userId, bankName, accountMode, money);
         System.out.printf("Account (%s) was created%n", accountId);
     }
 
@@ -372,7 +372,7 @@ public class LightConsole {
         System.out.println("Enter account's id and money");
         UUID accountId = getAccountId();
         Money money = getMoney();
-        cb.TransactMoney(accountId, money, mode);
+        cb.transactMoney(accountId, money, mode);
         System.out.println("Done");
     }
 
@@ -391,19 +391,19 @@ public class LightConsole {
         UUID accountFromId = getAccountId();
         UUID accountToId = getAccountId();
         Money money = getMoney();
-        cb.TransactMoney(accountFromId, accountToId, money);
+        cb.transactMoney(accountFromId, accountToId, money);
         System.out.println("Done");
     }
 
     private static void getAccountData() {
         UUID accountId = getAccountId();
-        AccountData data = cb.GetAccountData(accountId);
+        AccountData data = cb.getAccountData(accountId);
         System.out.println(data);
     }
 
     private static void getUserAccountsData() {
         UUID userId = getUserId();
-        List<AccountData> data = cb.GetUserAccountsData(userId);
+        List<AccountData> data = cb.getUserAccountsData(userId);
         for (AccountData accountData : data) {
             System.out.println(accountData);
         }
@@ -411,17 +411,17 @@ public class LightConsole {
 
     private static void getConfig() {
         String bankName = getBankName();
-        System.out.println(cb.GetConfig(bankName));
+        System.out.println(cb.getConfig(bankName));
     }
 
     private static void changeDebitPercent() {
-        cb.ChangeDebitPercent(getBankName(), getDebitPercent());
+        cb.changeDebitPercent(getBankName(), getDebitPercent());
         System.out.println("Done");
     }
 
     private static void changeDepositPercents() {
         ChangeDepositPercentMode mode = getChangeDepositPercentMode();
-        cb.ChangeDepositPercents(getBankName(), getMoney(), getDepositPercent(), mode);
+        cb.changeDepositPercents(getBankName(), getMoney(), getDepositPercent(), mode);
         System.out.println("Done");
     }
 
@@ -444,57 +444,57 @@ public class LightConsole {
     }
 
     private static void changeDebitHighLimit() {
-        cb.ChangeDebitHighLimit(getBankName(), getDebitHighLimit());
+        cb.changeDebitHighLimit(getBankName(), getDebitHighLimit());
         System.out.println("Done");
     }
 
     private static void changeDepositHighLimit() {
-        cb.ChangeDepositHighLimit(getBankName(), getDepositHighLimit());
+        cb.changeDepositHighLimit(getBankName(), getDepositHighLimit());
         System.out.println("Done");
     }
 
     private static void changeCreditLowLimit() {
-        cb.ChangeCreditLowLimit(getBankName(), getCreditLowLimit());
+        cb.changeCreditLowLimit(getBankName(), getCreditLowLimit());
         System.out.println("Done");
     }
 
     private static void changeCreditHighLimit() {
-        cb.ChangeCreditHighLimit(getBankName(), getCreditHighLimit());
+        cb.changeCreditHighLimit(getBankName(), getCreditHighLimit());
         System.out.println("Done");
     }
 
     private static void changeCreditCommission() {
-        cb.ChangeCreditCommission(getBankName(), getCreditCommission());
+        cb.changeCreditCommission(getBankName(), getCreditCommission());
         System.out.println("Done");
     }
 
     private static void changeDepositTime() {
-        cb.ChangeDepositTime(getBankName(), getDepositTime());
+        cb.changeDepositTime(getBankName(), getDepositTime());
         System.out.println("Done");
     }
 
     private static void changeTrustLimit() {
-        cb.ChangeTrustLimit(getBankName(), getTrustLimit());
+        cb.changeTrustLimit(getBankName(), getTrustLimit());
         System.out.println("Done");
     }
 
     private static void addUserAddress() {
-        cb.AddUserAddress(getUserId(), getAddress());
+        cb.addUserAddress(getUserId(), getAddress());
         System.out.println("Done");
     }
 
     private static void addUserPassport() {
-        cb.AddUserPassport(getUserId(), getPassport());
+        cb.addUserPassport(getUserId(), getPassport());
         System.out.println("Done");
     }
 
     private static void addUserPhoneNumber() {
-        cb.AddUserPhoneNumber(getUserId(), getPhoneNumber());
+        cb.addUserPhoneNumber(getUserId(), getPhoneNumber());
         System.out.println("Done");
     }
 
     private static void getUserData() {
-        System.out.println(cb.GetUserData(getUserId()));
+        System.out.println(cb.getUserData(getUserId()));
     }
 
     private static void quickStart() {
@@ -516,20 +516,20 @@ public class LightConsole {
                 new Money(20_000));
 
         String bankName = "SBER";
-        cb.AddBank(bankName, config);
+        cb.addBank(bankName, config);
 
         String userName = "Alesha";
         String userSurname = "Popovich";
-        UserData data = cb.CreateUserData()
+        UserData data = cb.createUserData()
                 .withPassport(new Passport("1234", "567890"))
                 .withAddress(new Address("SPB", "Good Street", 5, 220))
                 .withPhoneNumber(new PhoneNumber("+7(921)123-45-67"))
                 .create(userName, userSurname);
-        UUID userId = cb.AddUser(data);
+        UUID userId = cb.addUser(data);
 
-        UUID debitId = cb.OpenAccount(userId, bankName, AccountMode.DEBIT, new Money(10_000));
-        UUID creditId = cb.OpenAccount(userId, bankName, AccountMode.CREDIT, new Money(20_000));
-        UUID depositId = cb.OpenAccount(userId, bankName, AccountMode.DEPOSIT, new Money(30_000));
+        UUID debitId = cb.openAccount(userId, bankName, AccountMode.DEBIT, new Money(10_000));
+        UUID creditId = cb.openAccount(userId, bankName, AccountMode.CREDIT, new Money(20_000));
+        UUID depositId = cb.openAccount(userId, bankName, AccountMode.DEPOSIT, new Money(30_000));
 
         System.out.printf("UserId: %s%n", userId);
         System.out.printf("BankName: %s%n", bankName);

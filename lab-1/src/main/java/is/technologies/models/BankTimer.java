@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 public class BankTimer {
     private static int daysToShift = 0;
 
+    private BankTimer() {}
+
     public static BankTime getTime() {
         return new BankTime(LocalDateTime.now().plusDays(daysToShift));
     }
@@ -13,5 +15,3 @@ public class BankTimer {
         BankTimer.daysToShift += daysToShift;
     }
 }
-// TODO : do singleton
-

@@ -3,9 +3,11 @@ package is.technologies.models;
 import is.technologies.exceptions.ConfigException;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class Config implements Cloneable {
     private double debitPercent;
     private DepositPercents depositPercents;
@@ -82,15 +84,6 @@ public class Config implements Cloneable {
         }
 
         this.trustLimit = trustLimit;
-    }
-
-    @Override
-    public String toString() {
-        return "Config:"
-                + "\n\tDebitPercent : " + debitPercent + "\n\tDepositPercents : " + depositPercents
-                + "\n\tDebitHighLimit : " + debitHighLimit + "\n\tDepositHighLimit : " + depositHighLimit
-                + "\n\tCreditLowLimit : " + creditLowLimit + "\n\tCreditHighLimit : " + creditHighLimit
-                + "\n\tCreditCommission : " + creditCommission + "\n\tDepositTime : " + depositDays;
     }
 
     private void checkDataToNull(

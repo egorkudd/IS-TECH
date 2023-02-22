@@ -58,12 +58,6 @@ public class CreditAccount extends AbstractAccount {
         return money;
     }
 
-    public void changeConfig(Config config) {
-        lowLimit = config.getCreditLowLimit();
-        highLimit = config.getCreditHighLimit();
-        commission = config.getCreditCommission();
-    }
-
     public boolean makeTransaction(Money money, MoneyActionMode mode) {
         if (mode == MoneyActionMode.PUT_MONEY && this.money.plus(money).compareTo(highLimit) < 1) {
             this.money = this.money.plus(money);
@@ -80,5 +74,12 @@ public class CreditAccount extends AbstractAccount {
         }
 
         throw new IllegalStateException("Unexpected value: " + mode);
+    }
+
+    public void changeConfig(Config config) {
+        lowLimit = config.getCreditLowLimit();
+        highLimit = config.getCreditHighLimit();
+        commission = config.getCreditCommission();
+        trustLimit = config.getTrustLimit();
     }
 }

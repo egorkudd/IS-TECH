@@ -2,8 +2,10 @@ package is.technologies.models;
 
 import is.technologies.exceptions.PhoneException;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class PhoneNumber {
     private final String number;
 
@@ -31,10 +33,5 @@ public class PhoneNumber {
         }
 
         this.number = number;
-    }
-
-    @Override
-    public String toString() {
-        return number;
     }
 }

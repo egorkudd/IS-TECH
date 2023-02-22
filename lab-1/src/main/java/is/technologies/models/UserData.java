@@ -1,8 +1,10 @@
 package is.technologies.models;
 
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class UserData {
     public static final UserCreator creator = new UserCreator();
     private final String name;
@@ -17,11 +19,5 @@ public class UserData {
         this.passport = passport;
         this.address = address;
         this.phoneNumber = phoneNumber;
-    }
-
-    @Override
-    public String toString() {
-        return "User:\n\tName: %s\n\tSurname: %s\n\tPassport: %s\n\tAddress: %s\n\tPhone number: %s"
-                .formatted(name, surname, passport, address, phoneNumber);
     }
 }

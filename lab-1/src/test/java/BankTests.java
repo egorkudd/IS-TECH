@@ -3,7 +3,6 @@ import is.technologies.exceptions.TransactionException;
 import is.technologies.enums.AccountMode;
 import is.technologies.enums.ChangeDepositPercentMode;
 import is.technologies.enums.MoneyActionMode;
-import is.technologies.enums.TransactionMode;
 import is.technologies.models.*;
 import is.technologies.services.CentralBank;
 import is.technologies.services.CentralBankImpl;
@@ -19,12 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BankTests {
     private final CentralBank cb;
-    private final Config config;
+    private Config config;
     private final UUID userId;
     private final String bankName;
+    private final Money trustLimit = new Money(11_000);
 
     public BankTests() {
-        cb = new CentralBankImpl();
+        cb = CentralBankImpl.getInstance();
 
         config = new Config(
                 0.03,
@@ -41,71 +41,94 @@ public class BankTests {
                 new Money(150_000),
                 new Money(200),
                 365,
-                new Money(20_000));
+                trustLimit);
 
         bankName = "SBER";
-        cb.AddBank(bankName, config);
+        cb.addBank(bankName, config);
 
-        UserData data = cb.CreateUserData()
+        UserData data = cb.createUserData()
                 .withPassport(new Passport("1234", "567890"))
                 .withAddress(new Address("SPB", "Good Street", 5, 220))
                 .withPhoneNumber(new PhoneNumber("+7(921)123-45-67"))
                 .create("Alesha", "Popovich");
-        userId = cb.AddUser(data);
+        userId = cb.addUser(data);
     }
 
     @ParameterizedTest
     @EnumSource(AccountMode.class)
     public void putMoneyTest(AccountMode mode) {
-        int firstMoneyValue = 50_000;
-        UUID accountId = cb.OpenAccount(userId, bankName, mode, new Money(firstMoneyValue));
-        assertEquals(new Money(firstMoneyValue), cb.GetAccountData(accountId).getMoney());
+        int moneyValue = 50_000;
+        UUID accountId = cb.openAccount(userId, bankName, mode, new Money(moneyValue));
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
 
         int secondMoneyValue = 10_000;
-        cb.TransactMoney(accountId, new Money(secondMoneyValue), MoneyActionMode.PUT_MONEY);
-        assertEquals(new Money(firstMoneyValue + secondMoneyValue), cb.GetAccountData(accountId).getMoney());
+        cb.transactMoney(accountId, new Money(secondMoneyValue), MoneyActionMode.PUT_MONEY);
+        assertEquals(
+                new Money(secondMoneyValue + moneyValue),
+                cb.getAccountData(accountId).getMoney()
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountMode.class)
+    public void takeMoneyTest(AccountMode mode) {
+        int moneyValue = 50_000;
+        UUID accountId = cb.openAccount(userId, bankName, mode, new Money(moneyValue));
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
+
+        int firstTimeToRewind = 10;
+        BankTimer.rewindTime(firstTimeToRewind);
+        BankTimer.rewindTime(config.getDepositDays() - firstTimeToRewind);
+        Money moneyValueAfterRewinding = cb.getAccountData(accountId).getMoney();
+
+        int secondMoneyValue = 10_000;
+        cb.transactMoney(accountId, new Money(secondMoneyValue), MoneyActionMode.TAKE_MONEY);
+        assertEquals(
+                moneyValueAfterRewinding.minus(new Money(secondMoneyValue)),
+                cb.getAccountData(accountId).getMoney()
+        );
     }
 
     @Test
     public void SpecialCreditTransactionsTest() {
-        UUID accountId = cb.OpenAccount(userId, bankName, AccountMode.CREDIT, Money.ZERO);
+        UUID accountId = cb.openAccount(userId, bankName, AccountMode.CREDIT, Money.ZERO);
 
         int moneyValue = 10_000;
-        cb.TransactMoney(accountId, new Money(moneyValue), MoneyActionMode.TAKE_MONEY);
-        assertEquals(new Money(-moneyValue), cb.GetAccountData(accountId).getMoney());
+        cb.transactMoney(accountId, new Money(moneyValue), MoneyActionMode.TAKE_MONEY);
+        assertEquals(new Money(-moneyValue), cb.getAccountData(accountId).getMoney());
 
-        UUID secondAccountId = cb.OpenAccount(userId, bankName, AccountMode.CREDIT, Money.ZERO);
-        cb.TransactMoney(accountId, secondAccountId, new Money(moneyValue));
-        assertEquals(new Money(-2 * moneyValue), cb.GetAccountData(accountId).getMoney());
-        assertEquals(new Money(moneyValue), cb.GetAccountData(secondAccountId).getMoney());
+        UUID secondAccountId = cb.openAccount(userId, bankName, AccountMode.CREDIT, Money.ZERO);
+        cb.transactMoney(accountId, secondAccountId, new Money(moneyValue));
+        assertEquals(new Money(-2 * moneyValue), cb.getAccountData(accountId).getMoney());
+        assertEquals(new Money(moneyValue), cb.getAccountData(secondAccountId).getMoney());
     }
 
     @ParameterizedTest
     @EnumSource(value = AccountMode.class, names = {"DEBIT", "CREDIT"})
     public void DebitAndCreditTransactTest(AccountMode mode) {
         int moneyValue = 50_000;
-        UUID accountId = cb.OpenAccount(userId, bankName, mode, new Money(moneyValue));
-        assertEquals(new Money(moneyValue), cb.GetAccountData(accountId).getMoney());
+        UUID accountId = cb.openAccount(userId, bankName, mode, new Money(moneyValue));
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
 
         int transactMoneyValue = 15_000;
-        cb.TransactMoney(accountId, new Money(transactMoneyValue), MoneyActionMode.TAKE_MONEY);
+        cb.transactMoney(accountId, new Money(transactMoneyValue), MoneyActionMode.TAKE_MONEY);
         assertEquals(
                 new Money(moneyValue - transactMoneyValue),
-                cb.GetAccountData(accountId).getMoney()
+                cb.getAccountData(accountId).getMoney()
         );
 
         int secondMoneyValue = 10_000;
         int secondTransactMoneyValue = 5_000;
         UUID secondDebitAccount =
-                cb.OpenAccount(userId, bankName, AccountMode.DEBIT, new Money(secondMoneyValue));
-        cb.TransactMoney(accountId, secondDebitAccount, new Money(secondTransactMoneyValue));
+                cb.openAccount(userId, bankName, AccountMode.DEBIT, new Money(secondMoneyValue));
+        cb.transactMoney(accountId, secondDebitAccount, new Money(secondTransactMoneyValue));
         assertEquals(
                 new Money(moneyValue - transactMoneyValue - secondTransactMoneyValue),
-                cb.GetAccountData(accountId).getMoney()
+                cb.getAccountData(accountId).getMoney()
         );
         assertEquals(
                 new Money(secondMoneyValue + secondTransactMoneyValue),
-                cb.GetAccountData(secondDebitAccount).getMoney()
+                cb.getAccountData(secondDebitAccount).getMoney()
         );
     }
 
@@ -113,27 +136,82 @@ public class BankTests {
     public void DepositTransactTest() {
         int moneyValue = 50_000;
         UUID accountId =
-                cb.OpenAccount(userId, bankName, AccountMode.DEPOSIT, new Money(moneyValue));
-        assertEquals(new Money(moneyValue), cb.GetAccountData(accountId).getMoney());
+                cb.openAccount(userId, bankName, AccountMode.DEPOSIT, new Money(moneyValue));
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
 
         int transactMoneyValue = 5_000;
         assertThrows(
                 TransactionException.class,
-                () -> cb.TransactMoney(accountId, new Money(transactMoneyValue), MoneyActionMode.TAKE_MONEY)
+                () -> cb.transactMoney(accountId, new Money(transactMoneyValue), MoneyActionMode.TAKE_MONEY)
         );
-        assertEquals(new Money(moneyValue), cb.GetAccountData(accountId).getMoney());
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
 
         int secondMoneyValue = 10_000;
         UUID secondDebitAccount =
-                cb.OpenAccount(userId, bankName, AccountMode.DEBIT, new Money(secondMoneyValue));
-        UUID transactionId =
-                cb.TransactMoney(accountId, secondDebitAccount, new Money(transactMoneyValue));
-        assertEquals(
-                cb.getTransactionInfo(transactionId).split(" : ")[1],
-                TransactionMode.DENIED.toString()
+                cb.openAccount(userId, bankName, AccountMode.DEBIT, new Money(secondMoneyValue));
+        assertThrows(
+                TransactionException.class,
+                () -> cb.transactMoney(accountId, secondDebitAccount, new Money(transactMoneyValue))
         );
-        assertEquals(new Money(moneyValue), cb.GetAccountData(accountId).getMoney());
-        assertEquals(new Money(secondMoneyValue), cb.GetAccountData(secondDebitAccount).getMoney());
+
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
+        assertEquals(new Money(secondMoneyValue), cb.getAccountData(secondDebitAccount).getMoney());
+    }
+
+    @Test
+    public void RevertTransactionTest() {
+        UUID account1Id = cb.openAccount(userId, bankName, AccountMode.DEBIT, new Money(10_000));
+        UUID account2Id = cb.openAccount(userId, bankName, AccountMode.DEBIT, new Money(20_000));
+        UUID transactionId = cb.transactMoney(account1Id, account2Id, new Money(5_000));
+
+        assertEquals(new Money(5_000), cb.getAccountData(account1Id).getMoney());
+        assertEquals(new Money(25_000), cb.getAccountData(account2Id).getMoney());
+
+        boolean transactionReverted = cb.revertTransaction(transactionId);
+        assertTrue(transactionReverted);
+
+        assertEquals(new Money(10_000), cb.getAccountData(account1Id).getMoney());
+        assertEquals(new Money(20_000), cb.getAccountData(account2Id).getMoney());
+    }
+
+    @Test
+    public void TransactionTrustExceptionTest() {
+        UserData data = cb.createUserData().create("Ilusha", "Muromets");
+        UUID userId = cb.addUser(data);
+
+        int moneyValue = 50_000;
+        UUID account1Id = cb.openAccount(userId, bankName, AccountMode.DEBIT, new Money(moneyValue));
+        UUID account2Id = cb.openAccount(userId, bankName, AccountMode.CREDIT, new Money(moneyValue));
+
+        int transactMoneyValue = config.getTrustLimit().getMoneyValue() + 10_000;
+        assertThrows(
+                CentralBankException.class,
+                () -> cb.transactMoney(account1Id, account2Id, new Money(transactMoneyValue))
+        );
+
+        assertThrows(
+                CentralBankException.class,
+                () -> cb.transactMoney(account2Id, account2Id, new Money(transactMoneyValue))
+        );
+
+        cb.addUserAddress(userId, new Address("SPB", "Good Street", 5, 220));
+        cb.addUserPassport(userId, new Passport("1234", "567890"));
+        cb.addUserPhoneNumber(userId, new PhoneNumber("+7(921)123-45-67"));
+
+        cb.transactMoney(account1Id, account2Id, new Money(transactMoneyValue));
+        assertEquals(new Money(moneyValue - transactMoneyValue), cb.getAccountData(account1Id).getMoney());
+        assertEquals(new Money(moneyValue + transactMoneyValue), cb.getAccountData(account2Id).getMoney());
+
+        int secondTransactMoneyValue = config.getTrustLimit().getMoneyValue() + 5_000;
+        cb.transactMoney(account2Id, account1Id, new Money(secondTransactMoneyValue));
+        assertEquals(
+                new Money(moneyValue - transactMoneyValue + secondTransactMoneyValue),
+                cb.getAccountData(account1Id).getMoney()
+        );
+        assertEquals(
+                new Money(moneyValue + transactMoneyValue - secondTransactMoneyValue),
+                cb.getAccountData(account2Id).getMoney()
+        );
     }
 
     @Test
@@ -147,23 +225,24 @@ public class BankTests {
         int days = 777;
         double newDepositIntervalMoney = 400_000;
         double newDepositIntervalPercent = 0.55;
-        double newTrustLimit = 30_010;
+        double newTrustLimit = 30_000;
 
-        cb.ChangeCreditCommission(bankName, new Money(creditCommission));
-        cb.ChangeDebitPercent(bankName, debitPercent);
-        cb.ChangeDepositTime(bankName, days);
-        cb.ChangeCreditHighLimit(bankName, new Money(creditHighLimit));
-        cb.ChangeCreditLowLimit(bankName, new Money(creditLowLimit));
-        cb.ChangeDebitHighLimit(bankName, new Money(debitHighLimit));
-        cb.ChangeDepositHighLimit(bankName, new Money(depositHighLimit));
-        cb.ChangeDepositPercents(
+        cb.changeCreditCommission(bankName, new Money(creditCommission));
+        cb.changeDebitPercent(bankName, debitPercent);
+        cb.changeDepositTime(bankName, days);
+        cb.changeCreditHighLimit(bankName, new Money(creditHighLimit));
+        cb.changeCreditLowLimit(bankName, new Money(creditLowLimit));
+        cb.changeDebitHighLimit(bankName, new Money(debitHighLimit));
+        cb.changeDepositHighLimit(bankName, new Money(depositHighLimit));
+        cb.changeDepositPercents(
                 bankName,
                 new Money(newDepositIntervalMoney),
                 newDepositIntervalPercent,
                 ChangeDepositPercentMode.ADD_INTERVAL);
-        cb.ChangeTrustLimit(bankName, new Money(newTrustLimit));
 
-        Config config = cb.GetConfig(bankName);
+        cb.changeTrustLimit(bankName, new Money(newTrustLimit));
+
+        config = cb.getConfig(bankName);
         assertEquals(new Money(creditCommission), config.getCreditCommission());
         assertEquals(debitPercent, config.getDebitPercent());
         assertEquals(days, config.getDepositDays());
@@ -182,61 +261,7 @@ public class BankTests {
                 config.getDepositPercents().getData()
         );
         assertEquals(new Money(newTrustLimit), config.getTrustLimit());
-    }
 
-    @Test
-    public void RevertTransactionTest() {
-        UUID account1Id = cb.OpenAccount(userId, bankName, AccountMode.DEBIT, new Money(10_000));
-        UUID account2Id = cb.OpenAccount(userId, bankName, AccountMode.DEBIT, new Money(20_000));
-        UUID transactionId = cb.TransactMoney(account1Id, account2Id, new Money(5_000));
-
-        assertEquals(new Money(5_000), cb.GetAccountData(account1Id).getMoney());
-        assertEquals(new Money(25_000), cb.GetAccountData(account2Id).getMoney());
-
-        boolean transactionReverted = cb.RevertTransaction(transactionId);
-        assertTrue(transactionReverted);
-
-        assertEquals(new Money(10_000), cb.GetAccountData(account1Id).getMoney());
-        assertEquals(new Money(20_000), cb.GetAccountData(account2Id).getMoney());
-    }
-
-    @Test
-    public void TransactionTrustExceptionTest() {
-        UserData data = cb.CreateUserData().create("Ilusha", "Muromets");
-        UUID userId = cb.AddUser(data);
-
-        int moneyValue = 50_000;
-        UUID account1Id = cb.OpenAccount(userId, bankName, AccountMode.DEBIT, new Money(moneyValue));
-        UUID account2Id = cb.OpenAccount(userId, bankName, AccountMode.CREDIT, new Money(moneyValue));
-
-        int transactMoneyValue = config.getTrustLimit().getMoneyValue() + 10_000;
-        assertThrows(
-                CentralBankException.class,
-                () -> cb.TransactMoney(account1Id, account2Id, new Money(transactMoneyValue))
-        );
-
-        assertThrows(
-                CentralBankException.class,
-                () -> cb.TransactMoney(account2Id, account2Id, new Money(transactMoneyValue))
-        );
-
-        cb.AddUserAddress(userId, new Address("SPB", "Good Street", 5, 220));
-        cb.AddUserPassport(userId, new Passport("1234", "567890"));
-        cb.AddUserPhoneNumber(userId, new PhoneNumber("+7(921)123-45-67"));
-
-        cb.TransactMoney(account1Id, account2Id, new Money(transactMoneyValue));
-        assertEquals(new Money(moneyValue - transactMoneyValue), cb.GetAccountData(account1Id).getMoney());
-        assertEquals(new Money(moneyValue + transactMoneyValue), cb.GetAccountData(account2Id).getMoney());
-
-        int secondTransactMoneyValue = config.getTrustLimit().getMoneyValue() + 5_000;
-        cb.TransactMoney(account2Id, account1Id, new Money(secondTransactMoneyValue));
-        assertEquals(
-                new Money(moneyValue - transactMoneyValue + secondTransactMoneyValue),
-                cb.GetAccountData(account1Id).getMoney()
-        );
-        assertEquals(
-                new Money(moneyValue + transactMoneyValue - secondTransactMoneyValue),
-                cb.GetAccountData(account2Id).getMoney()
-        );
+        cb.changeTrustLimit(bankName, trustLimit);
     }
 }

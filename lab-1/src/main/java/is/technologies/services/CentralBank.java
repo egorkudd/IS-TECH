@@ -9,51 +9,51 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CentralBank {
-    boolean AddBank(String name, Config config);
+    boolean addBank(String name, Config config);
 
-    UserCreator CreateUserData();
+    UserCreator createUserData();
 
-    UUID AddUser(UserData data);
+    UUID addUser(UserData data);
 
-    UUID OpenAccount(UUID userId, String bankName, AccountMode mode, Money money);
+    UUID openAccount(UUID userId, String bankName, AccountMode mode, Money money);
 
-    UUID TransactMoney(UUID accountFromId, UUID accountToId, Money money);
+    UUID transactMoney(UUID accountFromId, UUID accountToId, Money money);
 
-    void TransactMoney(UUID accountId, Money money, MoneyActionMode mode);
+    void transactMoney(UUID accountId, Money money, MoneyActionMode mode);
 
-    boolean RevertTransaction(UUID transactionId);
+    boolean revertTransaction(UUID transactionId);
 
-    AccountData GetAccountData(UUID accountId);
+    AccountData getAccountData(UUID accountId);
 
-    List<AccountData> GetUserAccountsData(UUID userId);
+    List<AccountData> getUserAccountsData(UUID userId);
 
-    Config GetConfig(String bankName);
+    Config getConfig(String bankName);
 
-    void ChangeDebitPercent(String bankName, double percent);
+    void changeDebitPercent(String bankName, double percent);
 
-    void ChangeDepositPercents(String bankName, Money money, double percent, ChangeDepositPercentMode mode);
+    void changeDepositPercents(String bankName, Money money, double percent, ChangeDepositPercentMode mode);
 
-    void ChangeDebitHighLimit(String bankName, Money limit);
+    void changeDebitHighLimit(String bankName, Money limit);
 
-    void ChangeDepositHighLimit(String bankName, Money limit);
+    void changeDepositHighLimit(String bankName, Money limit);
 
-    void ChangeCreditLowLimit(String bankName, Money limit);
+    void changeCreditLowLimit(String bankName, Money limit);
 
-    void ChangeCreditHighLimit(String bankName, Money limit);
+    void changeCreditHighLimit(String bankName, Money limit);
 
-    void ChangeCreditCommission(String bankName, Money commission);
+    void changeCreditCommission(String bankName, Money commission);
 
-    void ChangeDepositTime(String bankName, int days);
+    void changeDepositTime(String bankName, int days);
 
-    void ChangeTrustLimit(String bankName, Money newTrustLimit);
+    void changeTrustLimit(String bankName, Money newTrustLimit);
 
-    void AddUserAddress(UUID userId, Address address);
+    void addUserAddress(UUID userId, Address address);
 
-    void AddUserPassport(UUID userId, Passport passport);
+    void addUserPassport(UUID userId, Passport passport);
 
-    void AddUserPhoneNumber(UUID userId, PhoneNumber phoneNumber);
+    void addUserPhoneNumber(UUID userId, PhoneNumber phoneNumber);
 
-    UserData GetUserData(UUID userId);
+    UserData getUserData(UUID userId);
 
-    String getTransactionInfo(UUID id);
+    String getTransactionString(UUID id);
 }

@@ -11,14 +11,11 @@ import java.util.UUID;
 
 public class DepositAccount extends AbstractAccount {
     private final BankTime finishTime;
-    private DepositPercents percents;
     private Money money;
     private Money percentShift;
     private boolean paid;
     private BankTime lastUpdateTime;
 
-
-    // TODO : what type for id ???
     public DepositAccount(
             UUID id,
             String bankName,
@@ -43,7 +40,7 @@ public class DepositAccount extends AbstractAccount {
         this.mode = AccountMode.DEPOSIT;
         this.bankName = bankName;
         this.highLimit = highLimit;
-        this.percents = percents;
+        this.percent = percents.getPercent(this.money);
         this.lastUpdateTime = time;
         this.finishTime = finishTime;
         this.trustLimit = trustLimit;
@@ -57,31 +54,21 @@ public class DepositAccount extends AbstractAccount {
             BankTime currTime = BankTimer.getTime();
             int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.getTime(), currTime.getTime());
             lastUpdateTime = currTime;
-            percentShift = percentShift.plus(money.multiply((int) Math.pow(
-                    1 + (percent / 365),
-                    pow
-            ))).minus(money);
+            percentShift = percentShift
+                    .plus(money.multiply((int) Math.pow(1 + (percent / 365), pow)))
+                    .minus(money);
         } else if (!paid) {
             BankTime currTime = finishTime;
-            int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.getTime(), currTime.getTime());
+            int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.getTime(), currTime.getTime()) + 1;
             lastUpdateTime = currTime;
-            percentShift = percentShift.plus(money.multiply((int) Math.pow(
-                    1 + (percent / 365),
-                    pow
-            ))).minus(money);
+            percentShift = percentShift
+                    .plus(money.multiply(Math.pow(1 + (percent / 365), pow)))
+                    .minus(money);
             money = money.plus(percentShift);
             paid = true;
         }
 
         return money;
-    }
-
-    public double getPercent() {
-        return percents.GetPercent(money);
-    }
-
-    public AccountData getAccountData() {
-        return new AccountData(id, bankName, AccountMode.DEPOSIT, money);
     }
 
     public boolean makeTransaction(Money money, MoneyActionMode mode) {
@@ -96,7 +83,7 @@ public class DepositAccount extends AbstractAccount {
             this.money = this.money.minus(money);
             return true;
         } else if (mode == MoneyActionMode.TAKE_MONEY) {
-            return false;
+            throw TransactionException.unrealDepositTransaction();
         }
 
         throw new IllegalStateException("Unexpected value: " + mode);
@@ -104,6 +91,7 @@ public class DepositAccount extends AbstractAccount {
 
     public void changeConfig(Config config) {
         highLimit = config.getDepositHighLimit();
-        percents = config.getDepositPercents();
+        trustLimit = config.getTrustLimit();
+        percent = config.getDepositPercents().getPercent(money);
     }
 }

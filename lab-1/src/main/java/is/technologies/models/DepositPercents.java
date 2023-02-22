@@ -1,12 +1,12 @@
 package is.technologies.models;
 
 import is.technologies.exceptions.DepositPercentException;
+import lombok.ToString;
 
-import java.util.List;
-import java.util.StringJoiner;
 import java.util.TreeMap;
 
-public class DepositPercents {
+@ToString
+public class DepositPercents implements Cloneable {
     private final TreeMap<Money, Double> data;
 
     public DepositPercents(TreeMap<Money, Double> data) {
@@ -20,40 +20,30 @@ public class DepositPercents {
             );
         }
 
-        for (double percent : data.values()) {
-            if (percent <= 0) {
-                throw DepositPercentException.incorrectPercent(percent);
-            }
-        }
+        data.values().stream()
+                .mapToDouble(percent -> percent)
+                .filter(percent -> percent <= 0)
+                .forEach(percent -> {
+                            throw DepositPercentException.incorrectPercent(percent);
+                        }
+                );
 
-        this.data = data;
+        this.data = (TreeMap<Money, Double>) data.clone();
     }
 
     public TreeMap<Money, Double> getData() {
-        var copyData = new TreeMap<Money, Double>();
-        for (Money dataKey : data.keySet()) {
-            copyData.put(dataKey, data.get(dataKey));
-        }
-
-        return copyData;
+        return (TreeMap<Money, Double>) data.clone();
     }
 
-    public double GetPercent(Money money) {
+    public double getPercent(Money money) {
         return data.get(data.keySet().stream()
                 .filter(x -> x.compareTo(money) < 1)
                 .reduce((first, second) -> second).get()
         );
     }
 
-    // TODO : Возможно потребуется переобределить клоинрование
-
     @Override
-    public String toString() {
-        List<String> values = data.keySet().stream()
-                .map(key -> "(%s - %s %%)".formatted(key, data.get(key) * 100))
-                .toList();
-        StringJoiner joiner = new StringJoiner(", ");
-        values.forEach(joiner::add);
-        return joiner.toString();
+    public DepositPercents clone() {
+        return new DepositPercents((TreeMap<Money, Double>) data.clone());
     }
 }
