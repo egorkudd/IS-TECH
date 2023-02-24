@@ -8,6 +8,9 @@ import is.technologies.models.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Central bank interface
+ */
 public interface CentralBank {
     boolean addBank(String name, Config config);
 

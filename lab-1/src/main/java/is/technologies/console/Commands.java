@@ -1,5 +1,8 @@
 package is.technologies.console;
 
+/**
+ * Command class for console
+ */
 public class Commands {
     public static final String Help = "-help";
     public static final String CreateBank = "-create-bank";

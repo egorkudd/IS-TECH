@@ -5,12 +5,15 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 
+/**
+ * Bank class, contains accounts and config
+ */
 public class Bank {
     @Getter
     private final String name;
     private Config config;
     @Getter
-    private final ArrayList<AbstractAccount> subscribers;
+    private final ArrayList<Account> subscribers;
 
     public Bank(String name, Config config) {
         if (!name.isBlank()) {
@@ -28,6 +31,10 @@ public class Bank {
         return config.clone();
     }
 
+    /**
+     * Change config for this bank and for all bank's accounts
+     * @param config to be changed
+     */
     public void changeConfig(Config config) {
         if (config != null) {
             this.config = config;

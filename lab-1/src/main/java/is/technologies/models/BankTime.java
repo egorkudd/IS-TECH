@@ -4,6 +4,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Banks' time class
+ */
 public class BankTime {
     @Getter
     private final LocalDateTime time;

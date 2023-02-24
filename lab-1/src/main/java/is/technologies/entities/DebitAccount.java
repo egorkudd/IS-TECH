@@ -9,7 +9,10 @@ import is.technologies.models.*;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-public class DebitAccount extends AbstractAccount {
+/**
+ * Debit account class, has percent to increase money and special updating money
+ */
+public class DebitAccount extends Account {
     private Money money;
     private Money percentShift;
     private int daysOfCurrentMonth;
@@ -47,6 +50,10 @@ public class DebitAccount extends AbstractAccount {
         this.userId = userId;
     }
 
+    /**
+     * Increase percentShift every day and increase money every month
+     * @return Money
+     */
     public Money getMoney() {
         BankTime currTime = BankTimer.getTime();
         int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.getTime(), currTime.getTime());
@@ -77,6 +84,13 @@ public class DebitAccount extends AbstractAccount {
         return money;
     }
 
+    /**
+     * @param money to transact
+     * @param mode which means type of transaction
+     * @return boolean
+     * @exception TransactionException when transaction is unreal
+     * @exception IllegalStateException when mode is unreal
+     */
     public boolean makeTransaction(Money money, MoneyActionMode mode) {
         if (mode == MoneyActionMode.PUT_MONEY && this.money.plus(money).compareTo(highLimit) < 1) {
             this.money = this.money.plus(money);
@@ -94,6 +108,10 @@ public class DebitAccount extends AbstractAccount {
         throw new IllegalStateException("Unexpected value: " + mode);
     }
 
+    /**
+     * Change necessary parameters to change
+     * @param config which contains new parameters
+     */
     public void changeConfig(Config config) {
         percent = config.getDebitPercent();
         highLimit = config.getDebitHighLimit();

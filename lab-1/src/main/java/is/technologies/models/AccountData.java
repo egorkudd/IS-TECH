@@ -6,6 +6,9 @@ import lombok.ToString;
 
 import java.util.UUID;
 
+/**
+ * Account's data class which contains account's data for user
+ */
 @Getter
 @ToString
 public class AccountData {

@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * User class, contains person's data and accounts
+ */
 @Getter
 @ToString
 public class User {
@@ -18,7 +21,7 @@ public class User {
     private Passport passport;
     private Address address;
     private PhoneNumber phoneNumber;
-    private final ArrayList<AbstractAccount> accounts;
+    private final ArrayList<Account> accounts;
 
     public User(UUID id, UserData data) {
         this.id = id;
@@ -34,23 +37,35 @@ public class User {
         return new UserCreator();
     }
 
+    /**
+     * If user has full data, he is trusted and vice versa
+     * @return boolean
+     */
     public boolean isTrusted() {
         return passport != null && address != null && phoneNumber != null;
     }
 
-    public List<AbstractAccount> getAccounts() {
-        return new ArrayList<>(accounts);
-    }
-
-    public void addAccount(AbstractAccount account) {
+    /**
+     * Add account to user's pool
+     * @param account to add
+     */
+    public void addAccount(Account account) {
         accounts.add(account);
     }
 
+    /**
+     * @return list of data of all accounts
+     */
     public List<AccountData> GetAccountsData() {
-        return accounts.stream().map(AbstractAccount::getAccountData).toList();
+        return accounts.stream().map(Account::getAccountData).toList();
     }
 
-    public void AddAddress(Address address) {
+    /**
+     * Add address to user's data
+     * @param address to add
+     * @exception UserException if user already has address
+     */
+    public void addAddress(Address address) {
         if (address == null) {
             throw new NullPointerException("address"); // TODO : NPE
         }
@@ -62,6 +77,11 @@ public class User {
         this.address = address;
     }
 
+    /**
+     * Add passport to user's data
+     * @param passport to add
+     * @exception UserException if user already has passport
+     */
     public void AddPassport(Passport passport) {
         if (passport == null) {
             throw new NullPointerException("passport"); // TODO : NPE
@@ -74,6 +94,11 @@ public class User {
         this.passport = passport;
     }
 
+    /**
+     * Add phone number to user's data
+     * @param phoneNumber to add
+     * @exception UserException if user already has phone number
+     */
     public void addPhoneNumber(PhoneNumber phoneNumber) {
         if (phoneNumber == null) {
             throw new NullPointerException("phoneNumber"); // TODO : NPE

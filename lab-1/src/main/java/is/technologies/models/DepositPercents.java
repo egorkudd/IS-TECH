@@ -5,6 +5,9 @@ import lombok.ToString;
 
 import java.util.TreeMap;
 
+/**
+ * Deposits percents' data class, contains percent intervals
+ */
 @ToString
 public class DepositPercents implements Cloneable {
     private final TreeMap<Money, Double> data;
@@ -31,6 +34,10 @@ public class DepositPercents implements Cloneable {
         this.data = (TreeMap<Money, Double>) data.clone();
     }
 
+    /**
+     * Gets copy of deposit intervals
+     * @return deposit intervals
+     */
     public TreeMap<Money, Double> getData() {
         return (TreeMap<Money, Double>) data.clone();
     }

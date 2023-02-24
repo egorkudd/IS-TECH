@@ -13,7 +13,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 
-public class CreditAccount extends AbstractAccount {
+/**
+ * Credit account class, has commission and special updating money
+ */
+public class CreditAccount extends Account {
     private BankTime lastUpdateTime;
     private Money commission;
 
@@ -47,6 +50,10 @@ public class CreditAccount extends AbstractAccount {
         this.userId = userId;
     }
 
+    /**
+     * Update money, if this money is less than zero during some months
+     * @return Money
+     */
     public Money getMoney() {
         if (money.compareTo(Money.ZERO) < 0 && lastUpdateTime != null) {
             BankTime currTime = BankTimer.getTime();
@@ -58,6 +65,13 @@ public class CreditAccount extends AbstractAccount {
         return money;
     }
 
+    /**
+     * @param money to transact
+     * @param mode which means type of transaction
+     * @return boolean
+     * @exception TransactionException when transaction is unreal
+     * @exception IllegalStateException when mode is unreal
+     */
     public boolean makeTransaction(Money money, MoneyActionMode mode) {
         if (mode == MoneyActionMode.PUT_MONEY && this.money.plus(money).compareTo(highLimit) < 1) {
             this.money = this.money.plus(money);
@@ -76,6 +90,10 @@ public class CreditAccount extends AbstractAccount {
         throw new IllegalStateException("Unexpected value: " + mode);
     }
 
+    /**
+     * Change necessary parameters to change
+     * @param config which contains new parameters
+     */
     public void changeConfig(Config config) {
         lowLimit = config.getCreditLowLimit();
         highLimit = config.getCreditHighLimit();

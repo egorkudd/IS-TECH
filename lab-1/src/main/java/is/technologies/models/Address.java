@@ -4,6 +4,9 @@ import is.technologies.exceptions.AddressException;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * Address class check validation of address
+ */
 @Getter
 @ToString
 public class Address {
@@ -20,6 +23,14 @@ public class Address {
         this.flat = flat;
     }
 
+    /**
+     * Check address data to validation
+     * @param town to check
+     * @param street to check
+     * @param houseNumber to check
+     * @param flat to check
+     * @exception AddressException is some part of data is invalid
+     */
     private void checkInputData(String town, String street, int houseNumber, int flat) {
         if (town.isBlank()) throw AddressException.incorrectTownName(town);
         if (street.isBlank()) throw AddressException.incorrectStreetName(street);

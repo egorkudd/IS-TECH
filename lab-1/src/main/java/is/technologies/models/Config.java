@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Config class, contains fields, checking data and clone method
+ */
 @Getter
 @Setter
 @ToString
@@ -86,6 +89,16 @@ public class Config implements Cloneable {
         this.trustLimit = trustLimit;
     }
 
+    /**
+     * Check parameters to null
+     * @param depositPercents to check
+     * @param debitHighLimit to check
+     * @param depositHighLimit to check
+     * @param creditLowLimit to check
+     * @param creditHighLimit to check
+     * @param creditCommission to check
+     * @param trustLimit to check
+     */
     private void checkDataToNull(
             DepositPercents depositPercents,
             Money debitHighLimit,

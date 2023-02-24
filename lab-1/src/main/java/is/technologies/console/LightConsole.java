@@ -21,90 +21,96 @@ public class LightConsole {
 
         boolean work = true;
         while (work) {
-            String command = scanner.nextLine();
-            switch (command) {
-                case "":
-                    continue;
-                case Commands.Help:
-                    printHelp();
-                    break;
-                case Commands.CreateBank:
-                    createBank();
-                    break;
-                case Commands.CreateUser:
-                    createUser();
-                    break;
-                case Commands.OpenAccount:
-                    openAccount();
-                    break;
-                case Commands.PutMoney:
-                    putOrTakeMoney(MoneyActionMode.PUT_MONEY);
-                    break;
-                case Commands.TakeMoney:
-                    putOrTakeMoney(MoneyActionMode.TAKE_MONEY);
-                    break;
-                case Commands.TransactMoney:
-                    transactMoney();
-                    break;
-                case Commands.GetAccountData:
-                    getAccountData();
-                    break;
-                case Commands.GetUserAccountsData:
-                    getUserAccountsData();
-                    break;
-                case Commands.GetConfig:
-                    getConfig();
-                    break;
-                case Commands.ChangeDebitPercent:
-                    changeDebitPercent();
-                    break;
-                case Commands.ChangeDepositPercents:
-                    changeDepositPercents();
-                    break;
-                case Commands.ChangeDebitHighLimit:
-                    changeDebitHighLimit();
-                    break;
-                case Commands.ChangeDepositHighLimit:
-                    changeDepositHighLimit();
-                    break;
-                case Commands.ChangeCreditLowLimit:
-                    changeCreditLowLimit();
-                    break;
-                case Commands.ChangeCreditHighLimit:
-                    changeCreditHighLimit();
-                    break;
-                case Commands.ChangeCreditCommission:
-                    changeCreditCommission();
-                    break;
-                case Commands.ChangeDepositTime:
-                    changeDepositTime();
-                    break;
-                case Commands.ChangeTrustLimit:
-                    changeTrustLimit();
-                    break;
-                case Commands.AddUserAddress:
-                    addUserAddress();
-                    break;
-                case Commands.AddUserPassport:
-                    addUserPassport();
-                    break;
-                case Commands.AddUserPhoneNumber:
-                    addUserPhoneNumber();
-                    break;
-                case Commands.GetUserData:
-                    getUserData();
-                    break;
-                case Commands.Quit:
-                    work = false;
-                    break;
-                case Commands.QuickStart:
-                    quickStart();
-                    break;
-                default:
-                    System.out.println("Incorrect command. Try again");
-                    break;
+            try {
+                String command = scanner.nextLine();
+                switch (command) {
+                    case "":
+                        continue;
+                    case Commands.Help:
+                        printHelp();
+                        break;
+                    case Commands.CreateBank:
+                        createBank();
+                        break;
+                    case Commands.CreateUser:
+                        createUser();
+                        break;
+                    case Commands.OpenAccount:
+                        openAccount();
+                        break;
+                    case Commands.PutMoney:
+                        putOrTakeMoney(MoneyActionMode.PUT_MONEY);
+                        break;
+                    case Commands.TakeMoney:
+                        putOrTakeMoney(MoneyActionMode.TAKE_MONEY);
+                        break;
+                    case Commands.TransactMoney:
+                        transactMoney();
+                        break;
+                    case Commands.GetAccountData:
+                        getAccountData();
+                        break;
+                    case Commands.GetUserAccountsData:
+                        getUserAccountsData();
+                        break;
+                    case Commands.GetConfig:
+                        getConfig();
+                        break;
+                    case Commands.ChangeDebitPercent:
+                        changeDebitPercent();
+                        break;
+                    case Commands.ChangeDepositPercents:
+                        changeDepositPercents();
+                        break;
+                    case Commands.ChangeDebitHighLimit:
+                        changeDebitHighLimit();
+                        break;
+                    case Commands.ChangeDepositHighLimit:
+                        changeDepositHighLimit();
+                        break;
+                    case Commands.ChangeCreditLowLimit:
+                        changeCreditLowLimit();
+                        break;
+                    case Commands.ChangeCreditHighLimit:
+                        changeCreditHighLimit();
+                        break;
+                    case Commands.ChangeCreditCommission:
+                        changeCreditCommission();
+                        break;
+                    case Commands.ChangeDepositTime:
+                        changeDepositTime();
+                        break;
+                    case Commands.ChangeTrustLimit:
+                        changeTrustLimit();
+                        break;
+                    case Commands.AddUserAddress:
+                        addUserAddress();
+                        break;
+                    case Commands.AddUserPassport:
+                        addUserPassport();
+                        break;
+                    case Commands.AddUserPhoneNumber:
+                        addUserPhoneNumber();
+                        break;
+                    case Commands.GetUserData:
+                        getUserData();
+                        break;
+                    case Commands.Quit:
+                        work = false;
+                        break;
+                    case Commands.QuickStart:
+                        quickStart();
+                        break;
+                    default:
+                        System.out.println("Incorrect command. Try again");
+                        break;
+                }
+            } catch (RuntimeException e) {
+                System.out.println("You have error: " + e.getMessage());
+                System.out.println("Enter command again");
             }
         }
+
     }
 
     private static void printHelp() {
@@ -164,16 +170,15 @@ public class LightConsole {
 
     private static DepositPercents getDepositPercents() {
         System.out.println("Creating deposit percents:");
-        System.out.println("Enter intervals\nFor example: [0 0,01], [10000 0,03], [20000 0,45]");
+        System.out.println("Enter intervals\nFor example: [0 0.01], [10000 0.03], [20000 0.45]");
         String strIntervals = scanner.nextLine();
         if (strIntervals.isBlank()) {
             throw new NullPointerException("strIntervals"); // TODO : NPE
         }
         String[] intervals = strIntervals.split(", ");
         TreeMap<Money, Double> dictPercents = new TreeMap<>();
-        for(String interval : intervals)
-        {
-            String normalInterval = interval.substring(1, interval.length() - 2);
+        for (String interval : intervals) {
+            String normalInterval = interval.substring(1, interval.length() - 1);
             String[] intervalData = normalInterval.split(" ");
             var money = new Money(Double.parseDouble(intervalData[0]));
             double percent = Double.parseDouble(intervalData[1]);

@@ -8,8 +8,11 @@ import lombok.Getter;
 
 import java.util.UUID;
 
+/**
+ * Account abstract class, contains fields, getters and method to change config
+ */
 @Getter
-public abstract class AbstractAccount implements CanMakeTransaction {
+public abstract class Account implements CanMakeTransaction {
     protected UUID id;
     protected AccountMode mode;
     protected String bankName;
@@ -20,6 +23,10 @@ public abstract class AbstractAccount implements CanMakeTransaction {
     protected Money trustLimit;
     protected UUID userId;
 
+    /**
+     * Return account data for users
+     * @return AccountData
+     */
     public AccountData getAccountData() {
         return new AccountData(id, bankName, mode, getMoney());
     }

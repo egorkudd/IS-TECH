@@ -183,7 +183,7 @@ public class BankTests {
         UUID account1Id = cb.openAccount(userId, bankName, AccountMode.DEBIT, new Money(moneyValue));
         UUID account2Id = cb.openAccount(userId, bankName, AccountMode.CREDIT, new Money(moneyValue));
 
-        int transactMoneyValue = config.getTrustLimit().getMoneyValue() + 10_000;
+        double transactMoneyValue = config.getTrustLimit().getMoneyValue() + 10_000;
         assertThrows(
                 CentralBankException.class,
                 () -> cb.transactMoney(account1Id, account2Id, new Money(transactMoneyValue))
@@ -202,7 +202,7 @@ public class BankTests {
         assertEquals(new Money(moneyValue - transactMoneyValue), cb.getAccountData(account1Id).getMoney());
         assertEquals(new Money(moneyValue + transactMoneyValue), cb.getAccountData(account2Id).getMoney());
 
-        int secondTransactMoneyValue = config.getTrustLimit().getMoneyValue() + 5_000;
+        double secondTransactMoneyValue = config.getTrustLimit().getMoneyValue() + 5_000;
         cb.transactMoney(account2Id, account1Id, new Money(secondTransactMoneyValue));
         assertEquals(
                 new Money(moneyValue - transactMoneyValue + secondTransactMoneyValue),

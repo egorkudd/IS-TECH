@@ -4,6 +4,9 @@ import is.technologies.exceptions.PhoneException;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * Phone number class, contains data and validation
+ */
 @Getter
 @ToString
 public class PhoneNumber {

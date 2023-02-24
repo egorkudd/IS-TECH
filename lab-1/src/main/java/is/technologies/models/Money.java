@@ -2,6 +2,9 @@ package is.technologies.models;
 
 import lombok.EqualsAndHashCode;
 
+/**
+ * Money class, contains arithmetic methods
+ */
 @EqualsAndHashCode
 public class Money implements Comparable {
     public static final Money ZERO = new Money(0);
@@ -14,18 +17,37 @@ public class Money implements Comparable {
         this.count = Math.round(count * 100);
     }
 
-    public int getMoneyValue() {
-        return (int) (count / 100);
+    /**
+     * Gets money
+     * @return double
+     */
+    public double getMoneyValue() {
+        return (double) count / 100;
     }
 
+    /**
+     * Plus operation
+     * @param money to add
+     * @return Money
+     */
     public Money plus(Money money) {
         return new Money((double) (count + money.count) / 100);
     }
 
+    /**
+     * Minus operation
+     * @param money to subtract
+     * @return Money
+     */
     public Money minus(Money money) {
         return new Money((double) (count - money.count) / 100);
     }
 
+    /**
+     * Multiply operation
+     * @param k to multiply
+     * @return Money
+     */
     public Money multiply(double k) {
         return new Money( count * k / 100);
     }

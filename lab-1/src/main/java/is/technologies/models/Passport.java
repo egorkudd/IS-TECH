@@ -4,6 +4,9 @@ import is.technologies.exceptions.PassportException;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * Passport class, contains data and validation
+ */
 @Getter
 @ToString
 public class Passport {
@@ -11,12 +14,17 @@ public class Passport {
     private final String number;
 
     public Passport(String series, String number) {
-        CheckInputData(series, number);
+        checkInputData(series, number);
         this.series = series;
         this.number = number;
     }
 
-    private void CheckInputData(String series, String number) {
+    /**
+     * Check input data
+     * @param series to check
+     * @param number to check
+     */
+    private void checkInputData(String series, String number) {
         if (!series.matches("^[0-9]{4}$")) {
             throw PassportException.incorrectSeries(series);
         }

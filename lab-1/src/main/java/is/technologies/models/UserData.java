@@ -3,6 +3,9 @@ package is.technologies.models;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * User's data class, contains user's data
+ */
 @Getter
 @ToString
 public class UserData {

@@ -9,7 +9,11 @@ import is.technologies.models.*;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-public class DepositAccount extends AbstractAccount {
+/**
+ * Deposit account class, has percent and special updating money.
+ * Has no opportunity to transact money before finish time
+ */
+public class DepositAccount extends Account {
     private final BankTime finishTime;
     private Money money;
     private Money percentShift;
@@ -49,6 +53,10 @@ public class DepositAccount extends AbstractAccount {
         this.userId = userId;
     }
 
+    /**
+     * Update money only after time to finish this account
+     * @return Money
+     */
     public Money getMoney() {
         if (finishTime.getTime().isAfter(BankTimer.getTime().getTime())) {
             BankTime currTime = BankTimer.getTime();
@@ -71,6 +79,13 @@ public class DepositAccount extends AbstractAccount {
         return money;
     }
 
+    /**
+     * @param money to transact
+     * @param mode which means type of transaction
+     * @return boolean
+     * @exception TransactionException when transaction is unreal
+     * @exception IllegalStateException when mode is unreal
+     */
     public boolean makeTransaction(Money money, MoneyActionMode mode) {
         if (mode == MoneyActionMode.PUT_MONEY && this.money.plus(money).compareTo(highLimit) < 1) {
             this.money = this.money.plus(money);
@@ -89,6 +104,10 @@ public class DepositAccount extends AbstractAccount {
         throw new IllegalStateException("Unexpected value: " + mode);
     }
 
+    /**
+     * Change necessary parameters to change
+     * @param config which contains new parameters
+     */
     public void changeConfig(Config config) {
         highLimit = config.getDepositHighLimit();
         trustLimit = config.getTrustLimit();
