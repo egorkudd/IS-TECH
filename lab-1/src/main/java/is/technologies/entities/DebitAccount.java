@@ -26,17 +26,17 @@ public class DebitAccount extends Account {
             Money highLimit,
             BankTime time,
             Money trustLimit,
-            UUID userId) {
+            UUID userId
+    ) {
         if (money == null) {
             throw new NullPointerException("money"); // TODO : NPE
         }
 
-        if (money.compareTo(Money.ZERO) > -1) {
-            this.money = money;
-        } else {
+        if (money.compareTo(Money.ZERO) <= -1) {
             throw ConfigException.incorrectHighLimit(money);
         }
 
+        this.money = money;
         this.id = id;
         this.mode = AccountMode.DEBIT;
         this.bankName = bankName;
@@ -52,11 +52,12 @@ public class DebitAccount extends Account {
 
     /**
      * Increase percentShift every day and increase money every month
+     *
      * @return Money
      */
     public Money getMoney() {
         BankTime currTime = BankTimer.getTime();
-        int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.getTime(), currTime.getTime());
+        int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.time(), currTime.time());
         lastUpdateTime = currTime;
 
         while (pow >= 30) {
@@ -86,10 +87,10 @@ public class DebitAccount extends Account {
 
     /**
      * @param money to transact
-     * @param mode which means type of transaction
+     * @param mode  which means type of transaction
      * @return boolean
-     * @exception TransactionException when transaction is unreal
-     * @exception IllegalStateException when mode is unreal
+     * @throws TransactionException  when transaction is unreal
+     * @throws IllegalStateException when mode is unreal
      */
     public boolean makeTransaction(Money money, MoneyActionMode mode) {
         if (mode == MoneyActionMode.PUT_MONEY && this.money.plus(money).compareTo(highLimit) < 1) {
@@ -110,6 +111,7 @@ public class DebitAccount extends Account {
 
     /**
      * Change necessary parameters to change
+     *
      * @param config which contains new parameters
      */
     public void changeConfig(Config config) {

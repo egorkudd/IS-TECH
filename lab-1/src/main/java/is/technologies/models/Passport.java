@@ -1,26 +1,18 @@
 package is.technologies.models;
 
 import is.technologies.exceptions.PassportException;
-import lombok.Getter;
-import lombok.ToString;
 
 /**
  * Passport class, contains data and validation
  */
-@Getter
-@ToString
-public class Passport {
-    private final String series;
-    private final String number;
-
-    public Passport(String series, String number) {
+public record Passport(String series, String number) {
+    public Passport {
         checkInputData(series, number);
-        this.series = series;
-        this.number = number;
     }
 
     /**
      * Check input data
+     *
      * @param series to check
      * @param number to check
      */

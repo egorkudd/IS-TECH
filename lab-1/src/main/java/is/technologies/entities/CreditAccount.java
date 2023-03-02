@@ -28,17 +28,17 @@ public class CreditAccount extends Account {
             Money highLimit,
             Money commission,
             Money trustLimit,
-            UUID userId) {
+            UUID userId
+    ) {
         if (money == null) {
             throw new NullPointerException("money"); // TODO : NPE
         }
 
-        if (money.compareTo(Money.ZERO) > -1) {
-            this.money = money;
-        } else {
+        if (money.compareTo(Money.ZERO) <= -1) {
             throw ConfigException.incorrectHighLimit(money);
         }
 
+        this.money = money;
         this.id = id;
         this.mode = AccountMode.CREDIT;
         this.bankName = bankName;
@@ -52,12 +52,13 @@ public class CreditAccount extends Account {
 
     /**
      * Update money, if this money is less than zero during some months
+     *
      * @return Money
      */
     public Money getMoney() {
         if (money.compareTo(Money.ZERO) < 0 && lastUpdateTime != null) {
             BankTime currTime = BankTimer.getTime();
-            int days = (int) ChronoUnit.DAYS.between(lastUpdateTime.getTime(), currTime.getTime());
+            int days = (int) ChronoUnit.DAYS.between(lastUpdateTime.time(), currTime.time());
             int months = days / 30;
             money = money.minus(commission.multiply(months));
         }
@@ -67,10 +68,10 @@ public class CreditAccount extends Account {
 
     /**
      * @param money to transact
-     * @param mode which means type of transaction
+     * @param mode  which means type of transaction
      * @return boolean
-     * @exception TransactionException when transaction is unreal
-     * @exception IllegalStateException when mode is unreal
+     * @throws TransactionException  when transaction is unreal
+     * @throws IllegalStateException when mode is unreal
      */
     public boolean makeTransaction(Money money, MoneyActionMode mode) {
         if (mode == MoneyActionMode.PUT_MONEY && this.money.plus(money).compareTo(highLimit) < 1) {
@@ -92,6 +93,7 @@ public class CreditAccount extends Account {
 
     /**
      * Change necessary parameters to change
+     *
      * @param config which contains new parameters
      */
     public void changeConfig(Config config) {

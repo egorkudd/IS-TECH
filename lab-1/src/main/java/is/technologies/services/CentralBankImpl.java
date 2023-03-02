@@ -45,7 +45,7 @@ public class CentralBankImpl implements CentralBank {
      */
     public boolean addBank(String name, Config config) {
         if (name.isBlank()) {
-            throw new NullPointerException("name"); // TODO : NPE
+            throw new IllegalStateException("Name is blank");
         }
 
         if (config == null) {
@@ -56,7 +56,7 @@ public class CentralBankImpl implements CentralBank {
             return false;
         }
 
-        var bank = new Bank(name, config);
+        Bank bank = new Bank(name, config);
         banks.put(name, bank);
         return true;
     }
@@ -79,8 +79,8 @@ public class CentralBankImpl implements CentralBank {
             throw new NullPointerException("data"); // TODO : NPE
         }
 
-        var id = UUID.randomUUID();
-        var user = new User(id, data);
+        UUID id = UUID.randomUUID();
+        User user = new User(id, data);
         users.put(id, user);
         return id;
     }
@@ -99,7 +99,7 @@ public class CentralBankImpl implements CentralBank {
         }
 
         if (bankName.isBlank()) {
-            throw new NullPointerException("bankName"); // TODO : NPE
+            throw new IllegalStateException("Bank's name is blank");
         }
 
         if (money == null) {
@@ -108,7 +108,7 @@ public class CentralBankImpl implements CentralBank {
 
         Bank bank = banks.get(bankName);
         Config config = bank.getConfig();
-        var id = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
         Account account = switch (mode) {
             case DEBIT -> new DebitAccount(
                     id,
@@ -127,7 +127,7 @@ public class CentralBankImpl implements CentralBank {
                     config.getDepositPercents(),
                     config.getCreditHighLimit(),
                     BankTimer.getTime(),
-                    new BankTime(BankTimer.getTime().getTime().plusDays(config.getDepositDays())),
+                    new BankTime(BankTimer.getTime().time().plusDays(config.getDepositDays())),
                     config.getTrustLimit(),
                     userId
             );

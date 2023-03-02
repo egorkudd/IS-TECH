@@ -59,13 +59,13 @@ public class BankTests {
     public void putMoneyTest(AccountMode mode) {
         int moneyValue = 50_000;
         UUID accountId = cb.openAccount(userId, bankName, mode, new Money(moneyValue));
-        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).money());
 
         int secondMoneyValue = 10_000;
         cb.transactMoney(accountId, new Money(secondMoneyValue), MoneyActionMode.PUT_MONEY);
         assertEquals(
                 new Money(secondMoneyValue + moneyValue),
-                cb.getAccountData(accountId).getMoney()
+                cb.getAccountData(accountId).money()
         );
     }
 
@@ -74,18 +74,18 @@ public class BankTests {
     public void takeMoneyTest(AccountMode mode) {
         int moneyValue = 50_000;
         UUID accountId = cb.openAccount(userId, bankName, mode, new Money(moneyValue));
-        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).money());
 
         int firstTimeToRewind = 10;
         BankTimer.rewindTime(firstTimeToRewind);
         BankTimer.rewindTime(config.getDepositDays() - firstTimeToRewind);
-        Money moneyValueAfterRewinding = cb.getAccountData(accountId).getMoney();
+        Money moneyValueAfterRewinding = cb.getAccountData(accountId).money();
 
         int secondMoneyValue = 10_000;
         cb.transactMoney(accountId, new Money(secondMoneyValue), MoneyActionMode.TAKE_MONEY);
         assertEquals(
                 moneyValueAfterRewinding.minus(new Money(secondMoneyValue)),
-                cb.getAccountData(accountId).getMoney()
+                cb.getAccountData(accountId).money()
         );
     }
 
@@ -95,12 +95,12 @@ public class BankTests {
 
         int moneyValue = 10_000;
         cb.transactMoney(accountId, new Money(moneyValue), MoneyActionMode.TAKE_MONEY);
-        assertEquals(new Money(-moneyValue), cb.getAccountData(accountId).getMoney());
+        assertEquals(new Money(-moneyValue), cb.getAccountData(accountId).money());
 
         UUID secondAccountId = cb.openAccount(userId, bankName, AccountMode.CREDIT, Money.ZERO);
         cb.transactMoney(accountId, secondAccountId, new Money(moneyValue));
-        assertEquals(new Money(-2 * moneyValue), cb.getAccountData(accountId).getMoney());
-        assertEquals(new Money(moneyValue), cb.getAccountData(secondAccountId).getMoney());
+        assertEquals(new Money(-2 * moneyValue), cb.getAccountData(accountId).money());
+        assertEquals(new Money(moneyValue), cb.getAccountData(secondAccountId).money());
     }
 
     @ParameterizedTest
@@ -108,13 +108,13 @@ public class BankTests {
     public void DebitAndCreditTransactTest(AccountMode mode) {
         int moneyValue = 50_000;
         UUID accountId = cb.openAccount(userId, bankName, mode, new Money(moneyValue));
-        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).money());
 
         int transactMoneyValue = 15_000;
         cb.transactMoney(accountId, new Money(transactMoneyValue), MoneyActionMode.TAKE_MONEY);
         assertEquals(
                 new Money(moneyValue - transactMoneyValue),
-                cb.getAccountData(accountId).getMoney()
+                cb.getAccountData(accountId).money()
         );
 
         int secondMoneyValue = 10_000;
@@ -124,11 +124,11 @@ public class BankTests {
         cb.transactMoney(accountId, secondDebitAccount, new Money(secondTransactMoneyValue));
         assertEquals(
                 new Money(moneyValue - transactMoneyValue - secondTransactMoneyValue),
-                cb.getAccountData(accountId).getMoney()
+                cb.getAccountData(accountId).money()
         );
         assertEquals(
                 new Money(secondMoneyValue + secondTransactMoneyValue),
-                cb.getAccountData(secondDebitAccount).getMoney()
+                cb.getAccountData(secondDebitAccount).money()
         );
     }
 
@@ -137,14 +137,14 @@ public class BankTests {
         int moneyValue = 50_000;
         UUID accountId =
                 cb.openAccount(userId, bankName, AccountMode.DEPOSIT, new Money(moneyValue));
-        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).money());
 
         int transactMoneyValue = 5_000;
         assertThrows(
                 TransactionException.class,
                 () -> cb.transactMoney(accountId, new Money(transactMoneyValue), MoneyActionMode.TAKE_MONEY)
         );
-        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).money());
 
         int secondMoneyValue = 10_000;
         UUID secondDebitAccount =
@@ -154,8 +154,8 @@ public class BankTests {
                 () -> cb.transactMoney(accountId, secondDebitAccount, new Money(transactMoneyValue))
         );
 
-        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).getMoney());
-        assertEquals(new Money(secondMoneyValue), cb.getAccountData(secondDebitAccount).getMoney());
+        assertEquals(new Money(moneyValue), cb.getAccountData(accountId).money());
+        assertEquals(new Money(secondMoneyValue), cb.getAccountData(secondDebitAccount).money());
     }
 
     @Test
@@ -164,14 +164,14 @@ public class BankTests {
         UUID account2Id = cb.openAccount(userId, bankName, AccountMode.DEBIT, new Money(20_000));
         UUID transactionId = cb.transactMoney(account1Id, account2Id, new Money(5_000));
 
-        assertEquals(new Money(5_000), cb.getAccountData(account1Id).getMoney());
-        assertEquals(new Money(25_000), cb.getAccountData(account2Id).getMoney());
+        assertEquals(new Money(5_000), cb.getAccountData(account1Id).money());
+        assertEquals(new Money(25_000), cb.getAccountData(account2Id).money());
 
         boolean transactionReverted = cb.revertTransaction(transactionId);
         assertTrue(transactionReverted);
 
-        assertEquals(new Money(10_000), cb.getAccountData(account1Id).getMoney());
-        assertEquals(new Money(20_000), cb.getAccountData(account2Id).getMoney());
+        assertEquals(new Money(10_000), cb.getAccountData(account1Id).money());
+        assertEquals(new Money(20_000), cb.getAccountData(account2Id).money());
     }
 
     @Test
@@ -199,18 +199,18 @@ public class BankTests {
         cb.addUserPhoneNumber(userId, new PhoneNumber("+7(921)123-45-67"));
 
         cb.transactMoney(account1Id, account2Id, new Money(transactMoneyValue));
-        assertEquals(new Money(moneyValue - transactMoneyValue), cb.getAccountData(account1Id).getMoney());
-        assertEquals(new Money(moneyValue + transactMoneyValue), cb.getAccountData(account2Id).getMoney());
+        assertEquals(new Money(moneyValue - transactMoneyValue), cb.getAccountData(account1Id).money());
+        assertEquals(new Money(moneyValue + transactMoneyValue), cb.getAccountData(account2Id).money());
 
         double secondTransactMoneyValue = config.getTrustLimit().getMoneyValue() + 5_000;
         cb.transactMoney(account2Id, account1Id, new Money(secondTransactMoneyValue));
         assertEquals(
                 new Money(moneyValue - transactMoneyValue + secondTransactMoneyValue),
-                cb.getAccountData(account1Id).getMoney()
+                cb.getAccountData(account1Id).money()
         );
         assertEquals(
                 new Money(moneyValue + transactMoneyValue - secondTransactMoneyValue),
-                cb.getAccountData(account2Id).getMoney()
+                cb.getAccountData(account2Id).money()
         );
     }
 

@@ -107,13 +107,33 @@ public class Config implements Cloneable {
             Money creditHighLimit,
             Money creditCommission,
             Money trustLimit) {
-        if (depositPercents == null) throw new NullPointerException("depositPercents");
-        if (debitHighLimit == null) throw new NullPointerException("debitHighLimit");
-        if (depositHighLimit == null) throw new NullPointerException("depositHighLimit");
-        if (creditLowLimit == null) throw new NullPointerException("creditLowLimit");
-        if (creditHighLimit == null) throw new NullPointerException("creditHighLimit");
-        if (creditCommission == null) throw new NullPointerException("creditCommission");
-        if (trustLimit == null) throw new NullPointerException("trustLimit");
+        if (depositPercents == null) {
+            throw new NullPointerException("depositPercents");
+        }
+
+        if (debitHighLimit == null) {
+            throw new NullPointerException("debitHighLimit");
+        }
+
+        if (depositHighLimit == null) {
+            throw new NullPointerException("depositHighLimit");
+        }
+
+        if (creditLowLimit == null) {
+            throw new NullPointerException("creditLowLimit");
+        }
+
+        if (creditHighLimit == null) {
+            throw new NullPointerException("creditHighLimit");
+        }
+
+        if (creditCommission == null) {
+            throw new NullPointerException("creditCommission");
+        }
+
+        if (trustLimit == null) {
+            throw new NullPointerException("trustLimit");
+        }
     }
 
 

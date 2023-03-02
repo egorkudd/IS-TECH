@@ -25,11 +25,11 @@ public class User {
 
     public User(UUID id, UserData data) {
         this.id = id;
-        this.name = data.getName();
-        this.surname = data.getSurname();
-        this.passport = data.getPassport();
-        this.address = data.getAddress();
-        this.phoneNumber = data.getPhoneNumber();
+        this.name = data.name();
+        this.surname = data.surname();
+        this.passport = data.passport();
+        this.address = data.address();
+        this.phoneNumber = data.phoneNumber();
         accounts = new ArrayList<>();
     }
 

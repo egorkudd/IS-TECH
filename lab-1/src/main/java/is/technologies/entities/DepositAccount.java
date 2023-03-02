@@ -29,17 +29,17 @@ public class DepositAccount extends Account {
             BankTime time,
             BankTime finishTime,
             Money trustLimit,
-            UUID userId) {
+            UUID userId
+    ) {
         if (money == null) {
             throw new NullPointerException("money"); // TODO : NPE
         }
 
-        if (money.compareTo(Money.ZERO) > -1) {
-            this.money = money;
-        } else {
+        if (money.compareTo(Money.ZERO) <= -1) {
             throw ConfigException.incorrectHighLimit(money);
         }
 
+        this.money = money;
         this.id = id;
         this.mode = AccountMode.DEPOSIT;
         this.bankName = bankName;
@@ -55,19 +55,20 @@ public class DepositAccount extends Account {
 
     /**
      * Update money only after time to finish this account
+     *
      * @return Money
      */
     public Money getMoney() {
-        if (finishTime.getTime().isAfter(BankTimer.getTime().getTime())) {
+        if (finishTime.time().isAfter(BankTimer.getTime().time())) {
             BankTime currTime = BankTimer.getTime();
-            int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.getTime(), currTime.getTime());
+            int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.time(), currTime.time());
             lastUpdateTime = currTime;
             percentShift = percentShift
                     .plus(money.multiply((int) Math.pow(1 + (percent / 365), pow)))
                     .minus(money);
         } else if (!paid) {
             BankTime currTime = finishTime;
-            int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.getTime(), currTime.getTime()) + 1;
+            int pow = (int) ChronoUnit.DAYS.between(lastUpdateTime.time(), currTime.time()) + 1;
             lastUpdateTime = currTime;
             percentShift = percentShift
                     .plus(money.multiply(Math.pow(1 + (percent / 365), pow)))
@@ -81,31 +82,39 @@ public class DepositAccount extends Account {
 
     /**
      * @param money to transact
-     * @param mode which means type of transaction
+     * @param mode  which means type of transaction
      * @return boolean
-     * @exception TransactionException when transaction is unreal
-     * @exception IllegalStateException when mode is unreal
+     * @throws TransactionException  when transaction is unreal
+     * @throws IllegalStateException when mode is unreal
      */
     public boolean makeTransaction(Money money, MoneyActionMode mode) {
-        if (mode == MoneyActionMode.PUT_MONEY && this.money.plus(money).compareTo(highLimit) < 1) {
-            this.money = this.money.plus(money);
-            return true;
-        } else if (mode == MoneyActionMode.PUT_MONEY) {
-            throw TransactionException.aboveHighLimit(this.money.plus(money), highLimit);
-        } else if (mode == MoneyActionMode.TAKE_MONEY &&
-                BankTimer.getTime().getTime().isAfter(finishTime.getTime()) &&
-                this.money.compareTo(money) > -1) {
-            this.money = this.money.minus(money);
-            return true;
-        } else if (mode == MoneyActionMode.TAKE_MONEY) {
-            throw TransactionException.unrealDepositTransaction();
+        switch (mode) {
+            case PUT_MONEY -> {
+                if (this.money.plus(money).compareTo(highLimit) >= 1) {
+                    throw TransactionException.aboveHighLimit(this.money.plus(money), highLimit);
+                }
+
+                this.money = this.money.plus(money);
+                return true;
+            }
+            case TAKE_MONEY -> {
+                boolean isFinishTimePast = BankTimer.getTime().time().isAfter(finishTime.time());
+                if (!isFinishTimePast || this.money.compareTo(money) <= -1) {
+                    throw TransactionException.unrealDepositTransaction();
+                }
+
+                this.money = this.money.minus(money);
+                return true;
+            }
+
+            default -> throw new IllegalStateException("Unexpected value: " + mode);
         }
 
-        throw new IllegalStateException("Unexpected value: " + mode);
     }
 
     /**
      * Change necessary parameters to change
+     *
      * @param config which contains new parameters
      */
     public void changeConfig(Config config) {

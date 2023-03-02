@@ -10,6 +10,8 @@ import is.technologies.services.CentralBankImpl;
 
 import java.util.*;
 
+import static is.technologies.console.Commands.*;
+
 public class LightConsole {
     private static CentralBank cb;
     private static final Scanner scanner = new Scanner(System.in);
@@ -17,134 +19,92 @@ public class LightConsole {
 
     public static void run() {
         cb = CentralBankImpl.getInstance();
-        System.out.printf("'%s' - possible commands%n", Commands.Help);
+        System.out.printf("'%s' - possible commands%n", HELP.getName());
 
         boolean work = true;
         while (work) {
             try {
-                String command = scanner.nextLine();
-                switch (command) {
-                    case "":
-                        continue;
-                    case Commands.Help:
-                        printHelp();
-                        break;
-                    case Commands.CreateBank:
-                        createBank();
-                        break;
-                    case Commands.CreateUser:
-                        createUser();
-                        break;
-                    case Commands.OpenAccount:
-                        openAccount();
-                        break;
-                    case Commands.PutMoney:
-                        putOrTakeMoney(MoneyActionMode.PUT_MONEY);
-                        break;
-                    case Commands.TakeMoney:
-                        putOrTakeMoney(MoneyActionMode.TAKE_MONEY);
-                        break;
-                    case Commands.TransactMoney:
-                        transactMoney();
-                        break;
-                    case Commands.GetAccountData:
-                        getAccountData();
-                        break;
-                    case Commands.GetUserAccountsData:
-                        getUserAccountsData();
-                        break;
-                    case Commands.GetConfig:
-                        getConfig();
-                        break;
-                    case Commands.ChangeDebitPercent:
-                        changeDebitPercent();
-                        break;
-                    case Commands.ChangeDepositPercents:
-                        changeDepositPercents();
-                        break;
-                    case Commands.ChangeDebitHighLimit:
-                        changeDebitHighLimit();
-                        break;
-                    case Commands.ChangeDepositHighLimit:
-                        changeDepositHighLimit();
-                        break;
-                    case Commands.ChangeCreditLowLimit:
-                        changeCreditLowLimit();
-                        break;
-                    case Commands.ChangeCreditHighLimit:
-                        changeCreditHighLimit();
-                        break;
-                    case Commands.ChangeCreditCommission:
-                        changeCreditCommission();
-                        break;
-                    case Commands.ChangeDepositTime:
-                        changeDepositTime();
-                        break;
-                    case Commands.ChangeTrustLimit:
-                        changeTrustLimit();
-                        break;
-                    case Commands.AddUserAddress:
-                        addUserAddress();
-                        break;
-                    case Commands.AddUserPassport:
-                        addUserPassport();
-                        break;
-                    case Commands.AddUserPhoneNumber:
-                        addUserPhoneNumber();
-                        break;
-                    case Commands.GetUserData:
-                        getUserData();
-                        break;
-                    case Commands.Quit:
-                        work = false;
-                        break;
-                    case Commands.QuickStart:
-                        quickStart();
-                        break;
-                    default:
-                        System.out.println("Incorrect command. Try again");
-                        break;
+                String commandString = scanner.nextLine();
+                if (commandString.equals("")) {
+                    continue;
                 }
+
+                Commands command = valueOf(
+                        commandString
+                                .substring(1)
+                                .replace("-", "_")
+                                .toUpperCase()
+                );
+
+                switch (command) {
+                    case HELP -> printHelp();
+                    case CREATE_BANK -> createBank();
+                    case CREATE_USER -> createUser();
+                    case OPEN_ACCOUNT -> openAccount();
+                    case PUT_MONEY -> putOrTakeMoney(MoneyActionMode.PUT_MONEY);
+                    case TAKE_MONEY -> putOrTakeMoney(MoneyActionMode.TAKE_MONEY);
+                    case TRANSACT_MONEY -> transactMoney();
+                    case ACCOUNT_DATA -> getAccountData();
+                    case USER_ACCOUNTS_DATA -> getUserAccountsData();
+                    case GET_CONFIG -> getConfig();
+                    case CHANGE_DEBIT_PERCENT -> changeDebitPercent();
+                    case CHANGE_DEPOSIT_PERCENTS -> changeDepositPercents();
+                    case CHANGE_DEBIT_HIGH_LIMIT -> changeDebitHighLimit();
+                    case CHANGE_DEPOSIT_HIGH_LIMIT -> changeDepositHighLimit();
+                    case CHANGE_CREDIT_LOW_LIMIT -> changeCreditLowLimit();
+                    case CHANGE_CREDIT_HIGH_LIMIT -> changeCreditHighLimit();
+                    case CHANGE_CREDIT_COMMISSION -> changeCreditCommission();
+                    case CHANGE_DEPOSIT_TIME -> changeDepositTime();
+                    case CHANGE_TRUST_LIMIT -> changeTrustLimit();
+                    case ADD_ADDRESS -> addUserAddress();
+                    case ADD_PASSPORT -> addUserPassport();
+                    case ADD_PHONE_NUMBER -> addUserPhoneNumber();
+                    case GET_USER_DATA -> getUserData();
+                    case QUIT -> work = false;
+                    case QUICK_START -> quickStart();
+                    default -> System.out.println("Incorrect command. Try again");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("Incorrect command. Try again");
             } catch (RuntimeException e) {
                 System.out.println("You have error: " + e.getMessage());
                 System.out.println("Enter command again");
             }
         }
-
     }
 
     private static void printHelp() {
-        System.out.printf("'%s' - create bank%n", Commands.CreateBank);
-        System.out.printf("'%s' - create user%n", Commands.CreateUser);
-        System.out.printf("'%s' - open account%n", Commands.OpenAccount);
-        System.out.printf("'%s' - put money%n", Commands.PutMoney);
-        System.out.printf("'%s' - take money%n", Commands.TakeMoney);
-        System.out.printf("'%s' - transact money from one account to another%n", Commands.TransactMoney);
-        System.out.printf("'%s' - get account data%n", Commands.GetAccountData);
-        System.out.printf("'%s' - get data of all user's accounts%n", Commands.GetUserAccountsData);
-        System.out.printf("'%s' - get config data%n", Commands.GetConfig);
-        System.out.printf("'%s' - change debit percent%n", Commands.ChangeDebitPercent);
-        System.out.printf("'%s' - change deposit percents%n", Commands.ChangeDepositPercents);
-        System.out.printf("'%s' - change debit high limit%n", Commands.ChangeDebitHighLimit);
-        System.out.printf("'%s' - change deposit high limit%n", Commands.ChangeDepositHighLimit);
-        System.out.printf("'%s' - change credit low limit%n", Commands.ChangeCreditLowLimit);
-        System.out.printf("'%s' - change credit high limit%n", Commands.ChangeCreditHighLimit);
-        System.out.printf("'%s' - change credit commission%n", Commands.ChangeCreditCommission);
-        System.out.printf("'%s' - change deposit time%n", Commands.ChangeDepositTime);
-        System.out.printf("'%s' - change maximum limit for untrust users%n", Commands.ChangeTrustLimit);
-        System.out.printf("'%s' - add address for user%n", Commands.AddUserAddress);
-        System.out.printf("'%s' - add passport for user%n", Commands.AddUserPassport);
-        System.out.printf("'%s' - add phone number for user%n", Commands.AddUserPhoneNumber);
-        System.out.printf("'%s' - get user's name, surname, address, phone, passport%n", Commands.GetUserData);
-        System.out.printf("'%s' - help to test program%n", Commands.QuickStart);
-        System.out.printf("'%s' - exit from program%n", Commands.Quit);
+        System.out.printf("'%s' - create bank%n", CREATE_BANK.getName());
+        System.out.printf("'%s' - create user%n", CREATE_USER.getName());
+        System.out.printf("'%s' - open account%n", OPEN_ACCOUNT.getName());
+        System.out.printf("'%s' - put money%n", PUT_MONEY.getName());
+        System.out.printf("'%s' - take money%n", TAKE_MONEY.getName());
+        System.out.printf("'%s' - transact money from one account to another%n", TRANSACT_MONEY.getName());
+        System.out.printf("'%s' - get account data%n", ACCOUNT_DATA.getName());
+        System.out.printf("'%s' - get data of all user's accounts%n", USER_ACCOUNTS_DATA.getName());
+        System.out.printf("'%s' - get config data%n", GET_CONFIG.getName());
+        System.out.printf("'%s' - change debit percent%n", CHANGE_DEBIT_PERCENT.getName());
+        System.out.printf("'%s' - change deposit percents%n", CHANGE_DEPOSIT_PERCENTS.getName());
+        System.out.printf("'%s' - change debit high limit%n", CHANGE_DEBIT_HIGH_LIMIT.getName());
+        System.out.printf("'%s' - change deposit high limit%n", CHANGE_DEPOSIT_HIGH_LIMIT.getName());
+        System.out.printf("'%s' - change credit low limit%n", CHANGE_CREDIT_LOW_LIMIT.getName());
+        System.out.printf("'%s' - change credit high limit%n", CHANGE_CREDIT_HIGH_LIMIT.getName());
+        System.out.printf("'%s' - change credit commission%n", CHANGE_CREDIT_COMMISSION.getName());
+        System.out.printf("'%s' - change deposit time%n", CHANGE_DEPOSIT_TIME.getName());
+        System.out.printf("'%s' - change maximum limit for untrust users%n", CHANGE_TRUST_LIMIT.getName());
+        System.out.printf("'%s' - add address for user%n", ADD_ADDRESS.getName());
+        System.out.printf("'%s' - add passport for user%n", ADD_PASSPORT.getName());
+        System.out.printf("'%s' - add phone number for user%n", ADD_PHONE_NUMBER.getName());
+        System.out.printf("'%s' - get user's name, surname, address, phone, passport%n", GET_USER_DATA.getName());
+        System.out.printf("'%s' - help to test program%n", QUICK_START.getName());
+        System.out.printf("'%s' - exit from program%n", QUIT.getName());
     }
 
     private static void createBank() {
         System.out.println("Creating bank:");
 
         System.out.println("Creating config:");
-        var config = new Config(
+        Config config = new Config(
                 getDebitPercent(),
                 getDepositPercents(),
                 getDebitHighLimit(),
@@ -158,7 +118,10 @@ public class LightConsole {
 
         String bankName = getBankName();
         boolean bankCreated = cb.addBank(bankName, config);
-        if (!bankCreated) throw ConsoleProgramException.incorrectBankName(bankName);
+        if (!bankCreated) {
+            throw ConsoleProgramException.incorrectBankName(bankName);
+        }
+
         System.out.printf("Bank (%s) was created%n", bankName);
     }
 
@@ -173,63 +136,57 @@ public class LightConsole {
         System.out.println("Enter intervals\nFor example: [0 0.01], [10000 0.03], [20000 0.45]");
         String strIntervals = scanner.nextLine();
         if (strIntervals.isBlank()) {
-            throw new NullPointerException("strIntervals"); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
+
         String[] intervals = strIntervals.split(", ");
         TreeMap<Money, Double> dictPercents = new TreeMap<>();
         for (String interval : intervals) {
             String normalInterval = interval.substring(1, interval.length() - 1);
             String[] intervalData = normalInterval.split(" ");
-            var money = new Money(Double.parseDouble(intervalData[0]));
+            Money money = new Money(Double.parseDouble(intervalData[0]));
             double percent = Double.parseDouble(intervalData[1]);
             dictPercents.put(money, percent);
         }
 
-        var depositPercents = new DepositPercents(dictPercents);
+        DepositPercents depositPercents = new DepositPercents(dictPercents);
         System.out.println("Deposit percents were created.");
         return depositPercents;
     }
 
     private static Money getDebitHighLimit() {
         System.out.println("Enter debit high limit:");
-        String input = scanner.nextLine();
-        return new Money(Double.parseDouble(input));
+        return new Money(Double.parseDouble(scanner.nextLine()));
     }
 
     private static Money getDepositHighLimit() {
         System.out.println("Enter deposit high limit:");
-        String input = scanner.nextLine();
-        return new Money(Double.parseDouble(input));
+        return new Money(Double.parseDouble(scanner.nextLine()));
     }
 
     private static Money getCreditLowLimit() {
         System.out.println("Enter credit low limit:");
-        String input = scanner.nextLine();
-        return new Money(Double.parseDouble(input));
+        return new Money(Double.parseDouble(scanner.nextLine()));
     }
 
     private static Money getCreditHighLimit() {
         System.out.println("Enter credit high limit:");
-        String input = scanner.nextLine();
-        return new Money(Double.parseDouble(input));
+        return new Money(Double.parseDouble(scanner.nextLine()));
     }
 
     private static Money getCreditCommission() {
         System.out.println("Enter credit commission:");
-        String input = scanner.nextLine();
-        return new Money(Double.parseDouble(input));
+        return new Money(Double.parseDouble(scanner.nextLine()));
     }
 
     private static int getDepositTime() {
         System.out.println("Enter count days for deposit time (days):");
-        String input = scanner.nextLine();
-        return Integer.parseInt(input);
+        return Integer.parseInt(scanner.nextLine());
     }
 
     private static Money getTrustLimit() {
         System.out.println("Enter max trust limit:");
-        String input = scanner.nextLine();
-        return new Money(Double.parseDouble(input));
+        return new Money(Double.parseDouble(scanner.nextLine()));
     }
 
     private static void createUser() {
@@ -249,8 +206,9 @@ public class LightConsole {
         System.out.println("Enter name:");
         String name = scanner.nextLine();
         if (name.isBlank()) {
-            throw new NullPointerException("name"); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
+
         return name;
     }
 
@@ -258,7 +216,7 @@ public class LightConsole {
         System.out.println("Enter surname:");
         String surname = scanner.nextLine();
         if (surname.isBlank()) {
-            throw new NullPointerException("surname"); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
 
         return surname;
@@ -268,8 +226,9 @@ public class LightConsole {
         System.out.println("Enter passport series and number (xxxx-xxxxxx), if you don't want - enter 'no':");
         String passport = scanner.nextLine();
         if (passport.isBlank()) {
-            throw new NullPointerException("passport"); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
+
         if (passport.equals("no")) {
             return null;
         }
@@ -286,7 +245,7 @@ public class LightConsole {
         System.out.println("Enter Address (town; street; house; flat), if you don't want - enter 'no':");
         String address = scanner.nextLine();
         if (address.isBlank()) {
-            throw new NullPointerException("address"); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
 
         if (address.equals("no")) {
@@ -310,7 +269,7 @@ public class LightConsole {
         System.out.println("Enter PhoneNumber, if you don't want - enter 'no':");
         String phoneNumber = scanner.nextLine();
         if (phoneNumber.isBlank()) {
-            throw new NullPointerException("phoneNumber"); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
 
         if (phoneNumber.equals("no")) {
@@ -334,7 +293,7 @@ public class LightConsole {
         System.out.println("Enter account type (Credit / Debit / Deposit):");
         String strAccountMode = scanner.nextLine();
         if (strAccountMode.isBlank()) {
-            throw new NullPointerException(strAccountMode); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
 
         return switch (strAccountMode) {
@@ -349,8 +308,9 @@ public class LightConsole {
         System.out.println("Enter user's id:");
         String strUserId = scanner.nextLine();
         if (strUserId.isBlank()) {
-            throw new NullPointerException("strUserId"); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
+
         return UUID.fromString(strUserId);
     }
 
@@ -358,8 +318,9 @@ public class LightConsole {
         System.out.println("Enter bank's name:");
         String bankName = scanner.nextLine();
         if (bankName.isBlank()) {
-            throw new NullPointerException(bankName); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
+
         return bankName;
     }
 
@@ -367,7 +328,7 @@ public class LightConsole {
         System.out.println("Enter money:");
         String strMoney = scanner.nextLine();
         if (strMoney.isBlank()) {
-            throw new NullPointerException("strMoney"); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
 
         return new Money(Double.parseDouble(strMoney));
@@ -385,7 +346,7 @@ public class LightConsole {
         System.out.println("Enter account's id:");
         String strAccountId = scanner.nextLine();
         if (strAccountId.isBlank()) {
-            throw new NullPointerException("strAccountId"); // TODO : NPE
+            throw new IllegalStateException("Value is blank");
         }
 
         return UUID.fromString(strAccountId);
@@ -433,8 +394,9 @@ public class LightConsole {
     private static ChangeDepositPercentMode getChangeDepositPercentMode() {
         System.out.println("Enter 'Add interval' or 'Delete interval'");
         String mode = scanner.nextLine();
-        if (mode.isBlank())
-            throw new NullPointerException("mode"); // TODO : NPE
+        if (mode.isBlank()) {
+            throw new IllegalStateException("Value is blank");
+        }
 
         return switch (mode) {
             case "Add interval" -> ChangeDepositPercentMode.ADD_INTERVAL;
@@ -503,7 +465,7 @@ public class LightConsole {
     }
 
     private static void quickStart() {
-        var config = new Config(
+        Config config = new Config(
                 0.03,
                 new DepositPercents(
                         new TreeMap<>() {{

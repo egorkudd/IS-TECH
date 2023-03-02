@@ -1,18 +1,12 @@
 package is.technologies.models;
 
 import is.technologies.exceptions.PhoneException;
-import lombok.Getter;
-import lombok.ToString;
 
 /**
  * Phone number class, contains data and validation
  */
-@Getter
-@ToString
-public class PhoneNumber {
-    private final String number;
-
-    public PhoneNumber(String number) {
+public record PhoneNumber(String number) {
+    public PhoneNumber {
         if (number.length() < 11) {
             throw PhoneException.incorrectPhoneLength(number);
         }
@@ -35,6 +29,5 @@ public class PhoneNumber {
             throw PhoneException.incorrectPhoneLength(number);
         }
 
-        this.number = number;
     }
 }

@@ -26,16 +26,18 @@ public class DepositPercents implements Cloneable {
         data.values().stream()
                 .mapToDouble(percent -> percent)
                 .filter(percent -> percent <= 0)
-                .forEach(percent -> {
+                .findAny()
+                .ifPresent(
+                        percent -> {
                             throw DepositPercentException.incorrectPercent(percent);
                         }
                 );
-
         this.data = (TreeMap<Money, Double>) data.clone();
     }
 
     /**
      * Gets copy of deposit intervals
+     *
      * @return deposit intervals
      */
     public TreeMap<Money, Double> getData() {
