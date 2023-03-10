@@ -13,11 +13,11 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import java.util.List;
 
-public abstract class Repository<T extends Model> implements CRUDRepository<T> {
+public abstract class HibernateRepository<T extends Model> implements CRUDRepository<T> {
     private static SessionFactory sessionFactory;
     protected String tableName;
     protected Class<T> aClass;
-    protected Repository() {
+    protected HibernateRepository() {
     }
 
     @Override
@@ -125,5 +125,9 @@ public abstract class Repository<T extends Model> implements CRUDRepository<T> {
             }
         }
         return sessionFactory;
+    }
+
+    public void close() {
+        sessionFactory.close();
     }
 }

@@ -5,14 +5,14 @@ import is.technologies.repositories.CRUDRepository;
 
 import java.sql.*;
 
-public abstract class Repository<T extends Model> implements CRUDRepository<T> {
+public abstract class JDBCRepository<T extends Model> implements CRUDRepository<T> {
     private final String url;
     private final String user;
     private final String password;
     protected static Connection connection;
     protected String tableName;
 
-    protected Repository(String url, String user, String password) {
+    protected JDBCRepository(String url, String user, String password) {
         this.url = url;
         this.user = user;
         this.password = password;
@@ -52,5 +52,13 @@ public abstract class Repository<T extends Model> implements CRUDRepository<T> {
         }
 
         return connection;
+    }
+
+    public void close() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

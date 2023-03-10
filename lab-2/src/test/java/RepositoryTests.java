@@ -3,8 +3,8 @@ import is.technologies.models.Employee;
 import is.technologies.models.Task;
 import is.technologies.repositories.CRUDRepository;
 import is.technologies.repositories.ChildEntityRepository;
-import is.technologies.repositories.mybatis.implementations.EmployeeRepositoryImpl;
-import is.technologies.repositories.mybatis.implementations.TaskRepositoryImpl;
+import is.technologies.repositories.mybatis.implementations.EmployeeMyBatisRepositoryImpl;
+import is.technologies.repositories.mybatis.implementations.TaskMyBatisRepositoryImpl;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -35,8 +35,8 @@ public class RepositoryTests {
 //        employeeRepository = new EmployeeRepository();
 //        taskRepository = new TaskRepository();
 
-        employeeRepository = new EmployeeRepositoryImpl();
-        taskRepository = new TaskRepositoryImpl();
+        employeeRepository = new EmployeeMyBatisRepositoryImpl();
+        taskRepository = new TaskMyBatisRepositoryImpl();
     }
 
     @AfterAll

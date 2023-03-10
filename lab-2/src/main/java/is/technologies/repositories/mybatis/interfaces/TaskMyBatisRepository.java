@@ -1,6 +1,5 @@
 package is.technologies.repositories.mybatis.interfaces;
 
-import is.technologies.models.Employee;
 import is.technologies.models.Task;
 import is.technologies.repositories.ChildEntityRepository;
 import org.apache.ibatis.annotations.*;
@@ -8,7 +7,7 @@ import org.apache.ibatis.annotations.*;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface TaskRepository extends ChildEntityRepository<Task> {
+public interface TaskMyBatisRepository extends ChildEntityRepository<Task> {
     @Override
     @Insert("INSERT INTO tasks(name, dead_line, description, type, employee_id)"
             + "VALUE(#{name}, #{deadLine}, #{description}, #{type}, #{employeeId})")
@@ -42,6 +41,6 @@ public interface TaskRepository extends ChildEntityRepository<Task> {
     List<Task> getAll() throws SQLException;
 
     @Override
-    @Select("SELECT * FROM tasks WHERE employee_id = #{id}")
+    @Select("SELECT * FROM tasks WHERE employee_id = #{id} limit 5")
     List<Task> getAllByParentId(long id) throws SQLException;
 }

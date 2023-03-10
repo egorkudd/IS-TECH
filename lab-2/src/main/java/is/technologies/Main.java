@@ -1,71 +1,136 @@
 package is.technologies;
 
-import is.technologies.enums.TaskType;
+import com.mysql.cj.log.LogFactory;
 import is.technologies.models.Employee;
-import is.technologies.models.Task;
-import is.technologies.repositories.CRUDRepository;
-import is.technologies.repositories.ChildEntityRepository;
-import is.technologies.repositories.mybatis.implementations.TaskRepositoryImpl;
-import is.technologies.repositories.mybatis.interfaces.EmployeeRepository;
-import is.technologies.repositories.mybatis.implementations.EmployeeRepositoryImpl;
-import is.technologies.repositories.mybatis.interfaces.TaskRepository;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import is.technologies.repositories.hibernate.EmployeeHibernateRepository;
+import is.technologies.repositories.hibernate.HibernateRepository;
+import is.technologies.repositories.jdbc.EmployeeJDBCRepository;
+import is.technologies.repositories.jdbc.JDBCRepository;
+import is.technologies.repositories.mybatis.implementations.EmployeeMyBatisRepositoryImpl;
+import is.technologies.repositories.mybatis.implementations.MyBatisRepository;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.sql.SQLException;
 import java.time.LocalDate;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.stream.IntStream;
 
 public class Main {
-    private static SqlSessionFactory factory;
+    public static void main(String[] args) {;
+        List<Employee> employees = new ArrayList<>();
 
-    public static void main(String[] args) throws SQLException, IOException {
-        printMySQLVersion();
+        String defaultName = "Ivan";
+        LocalDate defaultDate = LocalDate.of(2000, 1, 1);
+
+        IntStream.range(0, 100).forEach(
+                i -> {
+                    Employee employee = new Employee();
+                    employee.setName(defaultName.concat(String.valueOf(i)));
+                    employee.setBirthday(defaultDate.plusDays(i));
+                    employees.add(employee);
+                }
+        );
+
+        System.out.println("---------------------");
+        testJDBCTime(employees);
+        System.out.println("---------------------");
+        testHibernateTime(employees);
+        System.out.println("---------------------");
+        testMyBatisTime(employees);
+        System.out.println("---------------------");
     }
 
-    public static void printMySQLVersion() throws SQLException, IOException {
-        String resource = "mybatis.cfg.xml";
+    public static void testJDBCTime(List<Employee> employees) {
+        JDBCRepository<Employee> employeeRepository = new EmployeeJDBCRepository(
+                "jdbc:mysql://localhost:3306/itmo_lab2",
+                "root",
+                "testtest"
+        );
 
-        try (Reader reader = Resources.getResourceAsReader(resource)) {
-            factory = new SqlSessionFactoryBuilder().build(reader);
-            factory.getConfiguration().addMapper(TaskRepository.class);
+        long startTime = System.nanoTime();
+        employees.stream().forEach(employee -> {
+            try {
+                employeeRepository.save(employee);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
 
+        System.out.println("Time to insert: "
+                .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
+                .concat(" ms")
+        );
 
-            Employee employee1 = new Employee();
-            employee1.setId(193);
-            employee1.setName("Dima");
-            employee1.setBirthday(LocalDate.of(2003, 6, 7));
+        startTime = System.nanoTime();
+        try {
+            List<Employee> savedEmployees = employeeRepository.getAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-            Employee savedEmployee1 = new EmployeeRepositoryImpl().save(employee1);
-            System.out.println(savedEmployee1.getId());
+        System.out.println("Time to get all: "
+                .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
+                .concat(" ms")
+        );
 
-            ChildEntityRepository<Task> taskRepository = new TaskRepositoryImpl();
+        try {
+            employeeRepository.deleteAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-            Task task1 = new Task();
-            task1.setName("Sleep");
-            task1.setDeadLine(LocalDate.of(2023, 3, 3));
-            task1.setDescription("You need to sleep!!!");
-            task1.setType(TaskType.IMPORTANT);
-            task1.setEmployeeId(savedEmployee1.getId());
+        employeeRepository.close();
+    }
 
-            Task task2 = new Task();
-            task2.setName("Eat");
-            task2.setDeadLine(LocalDate.of(2023, 3, 4));
-            task2.setDescription("You should eat!!!");
-            task2.setType(TaskType.MEDIUM);
-            task2.setEmployeeId(savedEmployee1.getId());
+    public static void testHibernateTime(List<Employee> employees) {
+        HibernateRepository<Employee> employeeRepository = new EmployeeHibernateRepository();
 
-            Task savedTask1 = taskRepository.save(task1);
-            Task savedTask2 = taskRepository.save(task2);
+        long startTime = System.nanoTime();
+        employees.stream().forEach(employeeRepository::save);
 
-            System.out.println(savedTask1);
-            System.out.println(taskRepository.getById(savedTask1.getId()));
-            System.out.println(savedTask2);
-            System.out.println(taskRepository.getById(savedTask2.getId()));
+        System.out.println("Time to insert: "
+                .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
+                .concat(" ms")
+        );
+
+        startTime = System.nanoTime();
+        List<Employee> savedEmployees = employeeRepository.getAll();
+
+        System.out.println("Time to get all: "
+                .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
+                .concat(" ms")
+        );
+
+        employeeRepository.deleteAll();
+        employeeRepository.close();
+    }
+
+    public static void testMyBatisTime(List<Employee> employees) {
+        try {
+            MyBatisRepository<Employee> employeeRepository = new EmployeeMyBatisRepositoryImpl();
+
+            long startTime = System.nanoTime();
+            employees.stream().forEach(employeeRepository::save);
+
+            System.out.println("Time to insert: "
+                    .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
+                    .concat(" ms")
+            );
+
+            startTime = System.nanoTime();
+            List<Employee> savedEmployees = employeeRepository.getAll();
+
+            System.out.println("Time to get all: "
+                    .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
+                    .concat(" ms")
+            );
+
+            employeeRepository.deleteAll();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

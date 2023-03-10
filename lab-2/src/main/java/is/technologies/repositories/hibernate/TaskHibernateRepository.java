@@ -9,11 +9,12 @@ import org.hibernate.Session;
 
 import java.util.List;
 
-public class TaskRepository
-        extends Repository<Task> implements ChildEntityRepository<Task> {
-    public TaskRepository() {
+public class TaskHibernateRepository
+        extends HibernateRepository<Task> implements ChildEntityRepository<Task> {
+    public TaskHibernateRepository() {
         tableName = "tasks";
         aClass = Task.class;
+        getSessionFactory();
     }
 
     @Override
@@ -23,7 +24,7 @@ public class TaskRepository
             CriteriaQuery<Task> criteria = builder.createQuery(aClass);
             Root<Task> root = criteria.from(aClass);
             criteria.select(root).where(builder.equal(root.get("employeeId"), id));
-            return session.createQuery(criteria).getResultList();
+            return session.createQuery(criteria).setMaxResults(5).getResultList();
         }
     }
 }

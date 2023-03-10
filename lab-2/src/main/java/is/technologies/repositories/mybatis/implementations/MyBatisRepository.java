@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 
-public abstract class Repository<T extends Model> implements CRUDRepository<T> {
+public abstract class MyBatisRepository<T extends Model> implements CRUDRepository<T> {
     protected SqlSessionFactory factory;
     protected Class repositoryClass;
 

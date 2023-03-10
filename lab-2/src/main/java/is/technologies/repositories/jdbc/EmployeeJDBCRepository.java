@@ -6,8 +6,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmployeeRepository extends Repository<Employee> {
-    public EmployeeRepository(String url, String user, String password) {
+public class EmployeeJDBCRepository extends JDBCRepository<Employee> {
+    public EmployeeJDBCRepository(String url, String user, String password) {
         super(url, user, password);
         this.tableName = "employees";
     }

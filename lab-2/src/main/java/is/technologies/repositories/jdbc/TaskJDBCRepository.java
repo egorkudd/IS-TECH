@@ -8,8 +8,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskRepository extends Repository<Task> implements ChildEntityRepository<Task> {
-    public TaskRepository(String url, String user, String password) {
+public class TaskJDBCRepository extends JDBCRepository<Task> implements ChildEntityRepository<Task> {
+    public TaskJDBCRepository(String url, String user, String password) {
         super(url, user, password);
         this.tableName = "tasks";
     }
@@ -102,7 +102,7 @@ public class TaskRepository extends Repository<Task> implements ChildEntityRepos
     public List<Task> getAllByParentId(long id) throws SQLException {
         List<Task> tasks = new ArrayList<>();
 
-        String sql = "SELECT * FROM %s WHERE employee_id = ?".formatted(tableName);
+        String sql = "SELECT * FROM %s WHERE employee_id = ? limit 5".formatted(tableName);
         try (PreparedStatement statement = getConnection().prepareStatement(sql)) {
             statement.setLong(1, id);
 
