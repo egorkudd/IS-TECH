@@ -3,6 +3,10 @@ package is.technologies.repositories;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Interface of CRUD repository
+ * @param <T> is type of model of certain implementation
+ */
 public interface CRUDRepository<T> {
     T save(T entity) throws SQLException;
 

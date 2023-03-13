@@ -6,12 +6,20 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Employee's repository with JDBC
+ */
 public class EmployeeJDBCRepository extends JDBCRepository<Employee> {
     public EmployeeJDBCRepository(String url, String user, String password) {
         super(url, user, password);
         this.tableName = "employees";
     }
 
+    /**
+     * Method to save model to database
+     * @param entity is model to save
+     * @return saved entity
+     */
     @Override
     public Employee save(Employee entity) throws SQLException {
         String sql = "INSERT INTO %s (name, birthday) VALUE(?, ?)".formatted(tableName);;
@@ -36,6 +44,11 @@ public class EmployeeJDBCRepository extends JDBCRepository<Employee> {
 
     }
 
+    /**
+     * Method for updating model in database
+     * @param entity is model to update
+     * @return updated entity
+     */
     @Override
     public Employee update(Employee entity) throws SQLException {
         String sql = "UPDATE %s SET name = ? , birthday = ? WHERE id = ?".formatted(tableName);;
@@ -51,6 +64,11 @@ public class EmployeeJDBCRepository extends JDBCRepository<Employee> {
         }
     }
 
+    /**
+     * Method to get model from database
+     * @param id is id of model to get
+     * @return model from database
+     */
     @Override
     public Employee getById(long id) throws SQLException {
         String sql = "SELECT * FROM %s WHERE id = ?".formatted(tableName);;
@@ -69,6 +87,10 @@ public class EmployeeJDBCRepository extends JDBCRepository<Employee> {
         }
     }
 
+    /**
+     * Method to get all models of one type
+     * @return list of models
+     */
     @Override
     public List<Employee> getAll() throws SQLException {
         List<Employee> employees = new ArrayList<>();
@@ -87,6 +109,12 @@ public class EmployeeJDBCRepository extends JDBCRepository<Employee> {
         }
     }
 
+    /**
+     * Method to transact employee from database to model class
+     * @param resultSet is set of information of employee from database
+     * @return employee's model
+     * @throws SQLException if some fields are not valid
+     */
     private Employee createEmployee(ResultSet resultSet) throws SQLException {
         long id = resultSet.getLong("id");
         String name = resultSet.getString("name");

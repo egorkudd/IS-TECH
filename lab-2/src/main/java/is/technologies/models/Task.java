@@ -10,6 +10,9 @@ import java.io.Serializable;
 import java.sql.Date;
 import java.time.LocalDate;
 
+/**
+ * Task data class
+ */
 @Data
 @NoArgsConstructor
 @Entity
@@ -33,10 +36,18 @@ public class Task implements Serializable, Model {
     @Column(name = "employee_id")
     private long employeeId;
 
+    /**
+     * Setter for deadline from business logic to this class
+     * @param deadLine is deadline's date
+     */
     public void setDeadLine(LocalDate deadLine) {
         this.deadLine = deadLine;
     }
 
+    /**
+     * Setter for deadline from database to this class
+     * @param deadLine is deadline's date
+     */
     public void setDeadLine(Date deadLine) {
         this.deadLine = deadLine.toLocalDate();
     }

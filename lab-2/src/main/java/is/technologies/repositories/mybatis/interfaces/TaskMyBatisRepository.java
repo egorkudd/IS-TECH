@@ -7,6 +7,9 @@ import org.apache.ibatis.annotations.*;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Task's repository interface for MyBatis framework
+ */
 public interface TaskMyBatisRepository extends ChildEntityRepository<Task> {
     @Override
     @Insert("INSERT INTO tasks(name, dead_line, description, type, employee_id)"

@@ -18,6 +18,10 @@ public abstract class JDBCRepository<T extends Model> implements CRUDRepository<
         this.password = password;
     }
 
+    /**
+     * Method to delete model from database by id
+     * @param id of model to delete
+     */
     public void deleteById(long id) throws SQLException {
         String sql = "DELETE FROM %s WHERE id = ?".formatted(tableName);
         try (PreparedStatement statement = getConnection().prepareStatement(sql)) {
@@ -27,6 +31,10 @@ public abstract class JDBCRepository<T extends Model> implements CRUDRepository<
         }
     }
 
+    /**
+     * Method to delete model from database by model
+     * @param entity is model to delete
+     */
     public void deleteByEntity(T entity) throws SQLException {
         String sql = "DELETE FROM %s WHERE id = ?".formatted(tableName);
         try (PreparedStatement statement = getConnection().prepareStatement(sql)) {
@@ -37,6 +45,9 @@ public abstract class JDBCRepository<T extends Model> implements CRUDRepository<
         }
     }
 
+    /**
+     * Method to delete all models of one type
+     */
     public void deleteAll() throws SQLException {
         String sql = "DELETE FROM %s".formatted(tableName);;
         try (Statement statement = getConnection().createStatement()) {
@@ -45,6 +56,11 @@ public abstract class JDBCRepository<T extends Model> implements CRUDRepository<
         }
     }
 
+    /**
+     * Method to create and to get connection with database
+     * @return connection
+     * @throws SQLException if connection is unreal
+     */
     protected Connection getConnection() throws SQLException {
         if (connection == null) {
             connection = DriverManager.getConnection(url, user, password);
@@ -54,6 +70,9 @@ public abstract class JDBCRepository<T extends Model> implements CRUDRepository<
         return connection;
     }
 
+    /**
+     * Method to close database connection
+     */
     public void close() {
         try {
             connection.close();

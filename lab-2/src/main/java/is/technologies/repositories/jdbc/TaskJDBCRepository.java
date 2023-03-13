@@ -8,12 +8,20 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Task repository with JDBC
+ */
 public class TaskJDBCRepository extends JDBCRepository<Task> implements ChildEntityRepository<Task> {
     public TaskJDBCRepository(String url, String user, String password) {
         super(url, user, password);
         this.tableName = "tasks";
     }
 
+    /**
+     * Method to save model to database
+     * @param entity is model to save
+     * @return saved entity
+     */
     @Override
     public Task save(Task entity) throws SQLException {
         String sql = "INSERT INTO %s (name, dead_line, description, type, employee_id)"
@@ -44,6 +52,11 @@ public class TaskJDBCRepository extends JDBCRepository<Task> implements ChildEnt
         }
     }
 
+    /**
+     * Method for updating model in database
+     * @param entity is model to update
+     * @return updated entity
+     */
     @Override
     public Task update(Task entity) throws SQLException {
         String sql = "UPDATE %s SET name = ?, dead_line = ?, description = ?, "
@@ -63,6 +76,11 @@ public class TaskJDBCRepository extends JDBCRepository<Task> implements ChildEnt
         }
     }
 
+    /**
+     * Method to get model from database
+     * @param id is id of model to get
+     * @return model from database
+     */
     @Override
     public Task getById(long id) throws SQLException {
         String sql = "SELECT * FROM %s WHERE id = ?".formatted(tableName);
@@ -80,6 +98,10 @@ public class TaskJDBCRepository extends JDBCRepository<Task> implements ChildEnt
         }
     }
 
+    /**
+     * Method to get all models of one type
+     * @return list of models
+     */
     @Override
     public List<Task> getAll() throws SQLException {
         List<Task> tasks = new ArrayList<>();
@@ -98,6 +120,11 @@ public class TaskJDBCRepository extends JDBCRepository<Task> implements ChildEnt
         }
     }
 
+    /**
+     * Method to get all tasks of one employee
+     * @param id is id of parent model
+     * @return list of tasks of one employee
+     */
     @Override
     public List<Task> getAllByParentId(long id) throws SQLException {
         List<Task> tasks = new ArrayList<>();
@@ -116,7 +143,12 @@ public class TaskJDBCRepository extends JDBCRepository<Task> implements ChildEnt
             return tasks;
         }
     }
-
+    /**
+     * Method to transact task from database to model class
+     * @param resultSet is set of information of employee from database
+     * @return employee's model
+     * @throws SQLException if some fields are not valid
+     */
     private Task createTask(ResultSet resultSet) throws SQLException {
         long id = resultSet.getLong("id");
         String name = resultSet.getString("name");

@@ -13,6 +13,9 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import java.util.List;
 
+/**
+ * Abstract repository with hibernate framework
+ */
 public abstract class HibernateRepository<T extends Model> implements CRUDRepository<T> {
     private static SessionFactory sessionFactory;
     protected String tableName;
@@ -20,6 +23,11 @@ public abstract class HibernateRepository<T extends Model> implements CRUDReposi
     protected HibernateRepository() {
     }
 
+    /**
+     * Method to save model to database
+     * @param entity is model to save
+     * @return saved entity
+     */
     @Override
     public T save(T entity) {
         entity.setId(0);
@@ -37,6 +45,10 @@ public abstract class HibernateRepository<T extends Model> implements CRUDReposi
         }
     }
 
+    /**
+     * Method to delete model from database by id
+     * @param id of model to delete
+     */
     @Override
     public void deleteById(long id) {
         try (Session session = getSessionFactory().openSession()) {
@@ -51,6 +63,10 @@ public abstract class HibernateRepository<T extends Model> implements CRUDReposi
         }
     }
 
+    /**
+     * Method to delete model from database by model
+     * @param entity is model to delete
+     */
     @Override
     public void deleteByEntity(T entity) {
         try (Session session = getSessionFactory().openSession()) {
@@ -65,6 +81,27 @@ public abstract class HibernateRepository<T extends Model> implements CRUDReposi
         }
     }
 
+    /**
+     * Method to delete all models of one type
+     */
+    @Override
+    public void deleteAll() {
+        try (Session session = getSessionFactory().openSession()) {
+            CriteriaBuilder cBuilder = session.getCriteriaBuilder();
+            CriteriaDelete<T> cq = cBuilder.createCriteriaDelete(aClass);
+            cq.from(aClass);
+
+            session.beginTransaction();
+            session.createMutationQuery(cq).executeUpdate();
+            session.getTransaction().commit();
+        }
+    }
+
+    /**
+     * Method for updating model in database
+     * @param entity is model to update
+     * @return updated entity
+     */
     @Override
     public T update(T entity) {
         try (Session session = getSessionFactory().openSession()) {
@@ -82,6 +119,11 @@ public abstract class HibernateRepository<T extends Model> implements CRUDReposi
         return entity;
     }
 
+    /**
+     * Method to get model from database
+     * @param id is id of model to get
+     * @return model from database
+     */
     @Override
     public T getById(long id) {
         try (Session session = getSessionFactory().openSession()) {
@@ -89,6 +131,10 @@ public abstract class HibernateRepository<T extends Model> implements CRUDReposi
         }
     }
 
+    /**
+     * Method to get all models of one type
+     * @return list of models
+     */
     @Override
     public List<T> getAll() {
         try (Session session = getSessionFactory().openSession()) {
@@ -100,19 +146,10 @@ public abstract class HibernateRepository<T extends Model> implements CRUDReposi
         }
     }
 
-    @Override
-    public void deleteAll() {
-        try (Session session = getSessionFactory().openSession()) {
-            CriteriaBuilder cBuilder = session.getCriteriaBuilder();
-            CriteriaDelete<T> cq = cBuilder.createCriteriaDelete(aClass);
-            cq.from(aClass);
-
-            session.beginTransaction();
-            session.createMutationQuery(cq).executeUpdate();
-            session.getTransaction().commit();
-        }
-    }
-
+    /**
+     * Method to get connection with database
+     * @return session's factory
+     */
     protected static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             try {
@@ -127,6 +164,9 @@ public abstract class HibernateRepository<T extends Model> implements CRUDReposi
         return sessionFactory;
     }
 
+    /**
+     * Method to close
+     */
     public void close() {
         sessionFactory.close();
     }
