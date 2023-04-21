@@ -1,6 +1,5 @@
 package is.technologies;
 
-import com.mysql.cj.log.LogFactory;
 import is.technologies.models.Employee;
 import is.technologies.repositories.hibernate.EmployeeHibernateRepository;
 import is.technologies.repositories.hibernate.HibernateRepository;
@@ -14,12 +13,14 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 public class Main {
-    public static void main(String[] args) {;
+    private static final Logger log = Logger.getLogger(Main.class.getName());
+
+    public static void main(String[] args) {
+
         List<Employee> employees = new ArrayList<>();
 
         String defaultName = "Ivan";
@@ -34,16 +35,18 @@ public class Main {
                 }
         );
 
-        System.out.println("---------------------");
-        testJDBCTime(employees);
-        System.out.println("---------------------");
-        testHibernateTime(employees);
-        System.out.println("---------------------");
-        testMyBatisTime(employees);
-        System.out.println("---------------------");
+        compareTime(employees);
+
     }
 
-    public static void testJDBCTime(List<Employee> employees) {
+    private static void compareTime(List<Employee> employees) {
+        saveToCash(employees);
+        testJDBCTime(employees);
+        testHibernateTime(employees);
+        testMyBatisTime(employees);
+    }
+
+    private static void testJDBCTime(List<Employee> employees) {
         JDBCRepository<Employee> employeeRepository = new EmployeeJDBCRepository(
                 "jdbc:mysql://localhost:3306/itmo_lab2",
                 "root",
@@ -59,7 +62,7 @@ public class Main {
             }
         });
 
-        System.out.println("Time to insert: "
+        log.info("Time to insert: "
                 .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
                 .concat(" ms")
         );
@@ -71,7 +74,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        System.out.println("Time to get all: "
+        log.info("Time to get all: "
                 .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
                 .concat(" ms")
         );
@@ -85,13 +88,13 @@ public class Main {
         employeeRepository.close();
     }
 
-    public static void testHibernateTime(List<Employee> employees) {
+    private static void testHibernateTime(List<Employee> employees) {
         HibernateRepository<Employee> employeeRepository = new EmployeeHibernateRepository();
 
         long startTime = System.nanoTime();
         employees.stream().forEach(employeeRepository::save);
 
-        System.out.println("Time to insert: "
+        log.info("Time to insert: "
                 .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
                 .concat(" ms")
         );
@@ -99,7 +102,7 @@ public class Main {
         startTime = System.nanoTime();
         List<Employee> savedEmployees = employeeRepository.getAll();
 
-        System.out.println("Time to get all: "
+        log.info("Time to get all: "
                 .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
                 .concat(" ms")
         );
@@ -108,14 +111,14 @@ public class Main {
         employeeRepository.close();
     }
 
-    public static void testMyBatisTime(List<Employee> employees) {
+    private static void testMyBatisTime(List<Employee> employees) {
         try {
             MyBatisRepository<Employee> employeeRepository = new EmployeeMyBatisRepositoryImpl();
 
             long startTime = System.nanoTime();
             employees.stream().forEach(employeeRepository::save);
 
-            System.out.println("Time to insert: "
+            log.info("Time to insert: "
                     .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
                     .concat(" ms")
             );
@@ -123,10 +126,24 @@ public class Main {
             startTime = System.nanoTime();
             List<Employee> savedEmployees = employeeRepository.getAll();
 
-            System.out.println("Time to get all: "
+            log.info("Time to get all: "
                     .concat(String.valueOf((System.nanoTime() - startTime) / 1_000_000))
                     .concat(" ms")
             );
+
+            employeeRepository.deleteAll();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void saveToCash(List<Employee> employees) {
+        try {
+            MyBatisRepository<Employee> employeeRepository = new EmployeeMyBatisRepositoryImpl();
+
+            employees.stream().forEach(employeeRepository::save);
+
+            List<Employee> savedEmployees = employeeRepository.getAll();
 
             employeeRepository.deleteAll();
         } catch (IOException e) {
