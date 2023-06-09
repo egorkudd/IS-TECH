@@ -1,1 +1,0 @@
-insert into users(name) values ('Egor'), ('Alex');
